@@ -1,0 +1,169 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width" />
+<title>VITCON - THE HUB OF CONTROLLER</title>
+<link href="/jqGrid/css/ui.jqgrid.css" rel="stylesheet" type="text/css" />
+<script src="/js/jquery-2.1.4.min.js"></script>
+<script src="/js/jquery-ui-1.11.4.min.js"></script>
+<script src="/js/namespace.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/jquery.i18n.properties.js"></script>
+<script src="/js/datepicker-ko.js"></script>
+<script src="/js/datepicker-ja.js"></script>
+<script src="/js/jquery.cookie.js"></script>
+<script src="/js/language/language.js"></script>
+<script src="/js/mobile/mobile.js"></script>
+<script src="/js/past/past_list.js"></script>
+<script src="/jqGrid/js/i18n/grid.locale-kr.js" type="text/javascript"></script> 
+<script src="/jqGrid/js/jquery.jqGrid.src.js" type="text/javascript"></script>
+<link th:if="${localecd == 'en'}" href="/css/style_en.css" rel="stylesheet" type="text/css" />
+<link th:if="${localecd == 'ja'}" href="/css/style_ja.css" rel="stylesheet" type="text/css" />
+<link th:if="${localecd == 'ko'}" href="/css/style.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" type="text/css" href="/css/explain.css" />
+<link rel="stylesheet" type="text/css" href="/css/tui-grid.min.css" />
+<link rel="stylesheet" type="text/css" href="/css/tui-pagination.css" />
+<script type="text/javascript" src="/js/tui-code-snippet.min.js"></script>
+<script type="text/javascript" src="/js/tui-pagination.min.js"></script>
+<script type="text/javascript" src="/js/tui-grid.min.js"></script>
+<script src="/js/jquery.oLoader.js"></script>
+
+</head>
+<body class="past past_list">
+<div class="wrap">
+	<div th:include="fragment/header::frgHeader" class="header"></div>
+    
+    <div class="contents">
+    	<form name="downForm" id="downForm" method="post"> 
+			<input type="hidden" name="startdate" id="startdate">
+			<input type="hidden" name="enddate" id="enddate">
+			<input type="hidden" name="deviceid" id="deviceid">
+			<input type="hidden" name="groupid" id="groupid">
+			<input type="hidden" name="devicename" id="devicename">
+			<input type="hidden" name="localecode" id="localecode">
+			<input type="hidden" name="devicetypecd" id="devicetypecd">
+		</form>
+		<iframe id="fileifr" width="0" height="0" style="display:none;"></iframe>
+
+      <h2 class="subTitle subTitlePast"><th:block th:text="#{title.past}"></th:block></h2>
+        <div class="searchTop">
+        	<!-- 2019-01-24 달력 추가  -->
+        	<ul class="searchDate">
+	            <li>
+	              <span class="chkbox2">
+	              <input type="radio" name="dateType" id="dateType1" onclick="setSearchDate('0d')"/>
+	                  <label for="dateType1" ><th:block th:text="#{picker.day}"></th:block></label>
+	              </span>
+	           </li>
+	           <li>
+	              <span class="chkbox2">
+	                  <input type="radio" name="dateType" id="dateType2" onclick="setSearchDate('1w')"/>
+	                  <label for="dateType2"><th:block th:text="#{picker.week}"></th:block></label>
+	              </span>
+	           </li>
+	           <li>
+	              <span class="chkbox2">
+	                  <input type="radio" name="dateType" id="dateType3" onclick="setSearchDate('2w')"/>
+	                  <label for="dateType3"><th:block th:text="#{picker.two.week}"></th:block></label>
+	              </span>
+	           </li>
+	           <li>
+	              <span class="chkbox2">
+	                  <input type="radio" name="dateType" id="dateType4" onclick="setSearchDate('3w')"/>
+	                  <label for="dateType4"><th:block th:text="#{picker.three.week}"></th:block></label>
+	              </span>
+	           </li>
+	           <li>
+	              <span class="chkbox2">
+	                  <input type="radio" name="dateType" id="dateType5" onclick="setSearchDate('1m')"/>
+	                  <label for="dateType5"><th:block th:text="#{picker.month_one}"></th:block></label>
+	              </span>
+	           </li>
+	            <!-- <li>
+	                <span class="chkbox2">
+	                    <input type="radio" name="dateType" id="dateType7" onclick="setSearchDate('6m')"/>
+	                    <label for="dateType7"><th:block th:text="#{picker.month_six}"></th:block></label>
+	                </span>
+	            </li> -->
+	        </ul>
+
+            <ul class="searchTopList">
+                <li>
+                    <label for=""><th:block th:text="#{past.search.date}"></th:block></label>
+                    <form>
+					    <!-- search -->
+					    <table class="searchBox">
+					        <caption>조회</caption>
+					        <colgroup>
+					            <col width="123px">
+					            <col width="*">
+					        </colgroup>
+					        <tbody>
+			                    <div class="clearfix">
+			                        <!-- 시작일 -->
+			                        <span class="selBox02_picker">
+			                            <input type="text" class="datepicker inpType" name="searchStartDate" id="searchStartDate" >
+			                            <!-- <a href="#none" class="btncalendar dateclick">달력</a> -->
+			                        </span>
+			                        <!-- <span class="demi">~</span> -->
+			                        <!-- 종료일 -->
+			                        <span class="selBox02_picker">
+			                            <input type="text" class="datepicker inpType" name="searchEndDate" id="searchEndDate" >
+			                            <!-- <a href="#none" class="btncalendar dateclick">달력</a> -->
+			                        </span>
+			                    </div>
+					        <tbody>
+					    </table>
+					</form>
+                    <!-- <span class="searchBox01" id="date"></span> -->
+                </li>
+                <li>
+                    <label for=""><th:block th:text="#{past.search.group}"></th:block></label>
+                    <span class="selBox02">
+                        <select name="deviceGroupList" id="deviceGroupList"></select>
+                    </span>
+                </li>
+                <li>
+                    <label for=""><th:block th:text="#{past.search.device}"></th:block></label>
+                    <span class="selBox02">
+                        <select name="deviceList" id="deviceList"></select>
+                    </span>
+                </li>
+                <li><a class="btnSearchTop" th:attr="title=#{past.dosearch}"><i></i><span><th:block th:text="#{past.search}"></th:block></span></a></li>
+            </ul>
+        </div>
+        <div class="subTitleSmall">
+            <h3><th:block th:text="#{past.search.result}"></th:block></h3>
+            <div class="btnDivTitleRightSmall"><a id="download" class="btnDown"><i></i><th:block th:text="#{common.download}"></th:block></a></div>
+        </div>
+        
+        <div class="listNoResult_container" id="noData1">
+        	<div class="listNoResult"></div>
+        	<div class="noData_text"><th:block th:text="#{common.noresult}" style="display:none"></th:block></div>
+        </div>
+        
+        
+        <div class="loading-container2" id="loading-container">
+   	 		<div class="loading2"></div>
+   			<div id="loading-text2">LOADING</div>
+    	</div>
+    	
+        
+       <div class="grid_container" id="grid"></div>
+       
+        
+       <div class="pagination" id="pagination_container">
+	
+	   </div>
+                
+       
+         
+       
+       
+       
+       
+    </div>
+</div>
+</body>
+</html>

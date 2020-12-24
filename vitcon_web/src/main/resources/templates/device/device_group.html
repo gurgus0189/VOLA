@@ -1,0 +1,119 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width" />
+<title>VITCON - THE HUB OF CONTROLLER</title>
+<script src="/js/jquery-2.1.4.min.js"></script>
+<script src="/js/jquery-ui-1.11.4.min.js"></script>
+<script src="/js/namespace.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/jquery.i18n.properties.js"></script>
+<script src="/js/jquery.cookie.js"></script>
+<script src="/js/language/language.js"></script>
+<script src="/js/mobile/mobile.js"></script>
+<script src="/js/device/device_group.js"></script>
+<link th:if="${localecd == 'en'}" href="/css/style_en.css" rel="stylesheet" type="text/css" />
+<link th:if="${localecd == 'ja'}" href="/css/style_ja.css" rel="stylesheet" type="text/css" />
+<link th:if="${localecd == 'ko'}" href="/css/style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body class="device device_group">
+<div class="wrap">
+	<div th:include="fragment/header::frgHeader" class="header"></div>
+    <!-- <div class="header">
+        <h1 class="logo"><a href="/dashboard/listview.do">VITCON</a></h1>
+        <div class="mMenu"><a>모바일메뉴</a></div>
+        <div class="nav" role="navigation">
+            <ul class="navList">
+                <li><a href="/dashboard/listview.do">대시보드</a></li>
+                <li><a href="/alarm/alarm_list.do">알람내역조회</a></li>
+                <li class="navOn"><a href="/device/device_list.do">나의 디바이스</a>
+                    <ul class="sNavList">
+                        <li><a href="/device/device_list.do">디바이스 관리</a></li>
+                        <li><a href="/device/device_group.do">그룹 관리</a></li>
+                    </ul>
+                </li>
+                <li><a href="/past/past_list.do">과거데이터조회</a></li>
+                <li><a href="/stats/stats_list.do">통계</a>
+                    <ul class="sNavList">
+                        <li><a href="/stats/stats_list.do">통계</a></li>
+                        <li><a href="/stats/stats_analysis.do">문제상황분석</a></li>
+                    </ul>
+                </li>
+                <li><a href="/mypage/user.do">마이페이지</a>
+                    <ul class="sNavList">
+                        <li><a href="/mypage/user.do">계정관리</a></li>
+                        <li><a href="/mypage/setup.do">환경설정</a></li>
+                        <li><a href="/auth/logout.do">로그아웃</a></li>
+                        <li><span>서비스기한</span><em th:text="${#dates.format(session.enddate, 'yyyy-MM-dd')}"></em></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div> -->
+    <div class="contents">
+        <h2 class="subTitle subTitleGroup"><th:block th:text="#{title.device.groupmanage}"></th:block></h2>
+        <div class="btnDivTitleRight">
+            <a id="btnAddGroup" class="btnAddGroup"><th:block th:text="#{device.group.add}"></th:block></a>
+        </div>
+        <div id="groupList" class="listTable listTableGroup">
+            <ul class="listTableHead">
+                <li><th:block th:text="#{device.group.name}"></th:block></li>
+                <li><th:block th:text="#{device.count}"></th:block></li>
+                <li><th:block th:text="#{common.update}"></th:block></li>
+                <li><th:block th:text="#{common.remove}"></th:block></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!--그룹추가 layer start-->
+<div id="popupAddGroup" class="popupLayer popupAddGroup" style="display:none">
+    <div class="popupInner">
+        <div class="popupHead">
+            <h2><th:block th:text="#{device.group.add}"></th:block></h2>
+            <a class="btnClosePop"><th:block th:text="#{common.close}"></th:block></a>
+        </div>
+        <div class="popupBody">
+            <ul class="popInputUl">
+                <li><label for=""><th:block th:text="#{device.group.name}"></th:block></label></li>
+                <li><input id="addGroupname" type="text" placeholder="" class="popTxtbox"></li>
+            </ul>
+            <div class="btnPopCenter">
+                <a class="btnPopNormal"><th:block th:text="#{common.cancel}"></th:block><i></i></a>
+                <a class="btnPopConfirm" id="addGroup"><th:block th:text="#{common.apply}"></th:block><i></i></a>
+            </div>
+        </div>
+    </div>
+</div>
+<!--그룹추가 layer end-->
+
+<!--그룹명수정 layer start-->
+<div id="popupEditGroup" class="popupLayer popupEditGroup" style="display:none">
+    <div class="popupInner">
+        <div class="popupHead">
+            <h2><th:block th:text="#{device.group.nameupdate}"></th:block></h2>
+            <a class="btnClosePop"><th:block th:text="#{common.close}"></th:block></a>
+        </div>
+        <div class="popupBody">
+            <ul class="popInputUl">
+                <li><label for=""><th:block th:text="#{device.group.name}"></th:block></label></li>
+                <li><input id="editGroupname" type="text" class="popTxtbox"></li>
+                <li><input id="editGroupid" type="hidden"></li>
+            </ul>
+            <div class="btnPopCenter">
+                <a class="btnPopNormal"><th:block th:text="#{common.cancel}"></th:block><i></i></a>
+                <a class="btnPopConfirm" id="editGroup"><th:block th:text="#{common.apply}"></th:block><i></i></a>
+            </div>
+        </div>
+    </div>
+</div>
+<!--그룹명수정 layer end-->
+
+<!--배경 layer start-->
+<div id="popupBgLayer" class="popupBgLayer" style="display:none"></div>
+<!--배경 layer end-->
+
+</body>
+</html>

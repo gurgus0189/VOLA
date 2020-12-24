@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+     PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+     "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="com.vitcon.service.analyze.AnalyzeMapper">
+
+    <resultMap type="com.vitcon.service.user.UserVO" id="UserVOMap">
+       <result column="userid" property="userid"></result>
+       <result column="username" property="username"></result> 
+       <result column="puserid" property="puserid"></result> 
+    </resultMap>
+    
+    <resultMap type="com.vitcon.service.device.DeviceVO" id="DeviceVOMap">
+       <result column="deviceid" property="deviceid"></result>
+       <result column="devicename" property="devicename"></result>
+       <result column="userid" property="userid"></result>
+       <result column="createdate" property="createdate"></result>
+       <result column="updatedate" property="updatedate"></result>
+       <result column="devicetypecd" property="devicetypecd"></result>
+       <result column="groupid" property="groupid"></result>
+       <result column="devicedesc" property="devicedesc"></result>
+       <result column="deleteflag" property="deleteflag"></result>
+    </resultMap>
+    
+	<resultMap type="com.vitcon.service.device.DeviceGroupVO" id="DeviceGroupVOMap">
+       <result column="groupid" property="groupid"></result>
+       <result column="groupname" property="groupname"></result>
+       <result column="userid" property="userid"></result>       
+       <result column="defaultyn" property="defaultyn"></result>
+	</resultMap>
+
+	<resultMap type="com.vitcon.service.device.DeviceAlarmVO" id="DeviceAlarmVOMap">
+       <result column="deviceid" property="deviceid"></result>
+       <result column="regdate" property="regdate"></result>
+       <result column="data" property="data"></result>       
+       <result column="json" property="json"></result>
+	</resultMap>
+	
+    <resultMap type="com.vitcon.service.device.IntegratedVO" id="getAllAnalyzeList">
+       <collection property="user" resultMap="UserVOMap"></collection>
+       <collection property="device" resultMap="DeviceVOMap"></collection>
+       <collection property="devicegroup" resultMap="DeviceGroupVOMap"></collection>
+       <collection property="devicealarm" resultMap="DeviceAlarmVOMap"></collection>
+    </resultMap>
+    
+	 <!-- 현재 시간 문제생긴 디바이스 리스트 --> 
+    <select id="getProblemDeviceList" parameterType="Object" resultType="java.util.HashMap">
+        <![CDATA[
+		    SELECT (SELECT regdate 
+                  FROM devicedata
+                 WHERE deviceid = a.deviceid
+                 ORDER BY regdate DESC
+                 LIMIT 1) AS updatedate
+             	,a.deviceid
+              ,a.devicename
+              ,d.groupname
+          FROM device a
+              ,(SELECT ifnull(puserid, userid) as userid 
+                  FROM user
+                 WHERE userid = #{userid}
+              ) b
+              ,devicegroup d
+         WHERE a.userid = b.userid
+           AND a.groupid = d.groupid
+	    ]]>
+    </select>  
+	
+	<!-- 구매일자 오래된 것 -->
+    <select id="getOldDeviceList" parameterType="Object" resultType="java.util.HashMap">
+     <![CDATA[
+		SELECT a.createdate
+		      ,a.deviceid
+			  ,a.devicename
+			  ,c.groupname
+		  FROM device a
+		      ,(
+		         SELECT ifnull(puserid, userid) as userid 
+		           FROM user
+		          WHERE userid = #{userid}
+		       ) b
+			  ,devicegroup c
+		WHERE a.userid = b.userid
+		  AND a.userid = c.userid
+		  AND a.createdate < DATE_SUB(now(), INTERVAL 1 YEAR)
+		  AND a.groupid = c.groupid
+		  ]]>
+	 </select>
+</mapper>

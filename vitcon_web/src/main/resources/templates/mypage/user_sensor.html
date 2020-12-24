@@ -1,0 +1,36 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width" />
+<title>VITCON - THE HUB OF CONTROLLER</title>
+<script src="/js/jquery-2.1.4.min.js"></script>
+<script src="/js/jquery-ui-1.11.4.min.js"></script>
+<script src="/js/namespace.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/jquery.i18n.properties.js"></script>
+<script src="/js/jquery.cookie.js"></script>
+<script src="/js/language/language.js"></script>
+<script src="/js/mobile/mobile.js"></script>
+<script src="/js/mypage/user_sensor.js"></script>
+<link th:if="${localecd == 'en'}" href="/css/style_en.css" rel="stylesheet" type="text/css" />
+<link th:if="${localecd == 'ja'}" href="/css/style_ja.css" rel="stylesheet" type="text/css" />
+<link th:if="${localecd == 'ko'}" href="/css/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body class="mypage mypage_user_sensor">
+<div class="wrap">
+  <div th:include="fragment/header::frgHeader" class="header"></div>
+  <div class="contents" id="contents">
+    <h2 class="subTitle subTitleMypage" id="subTitleMypage"><th:block th:text="#{account.title.manage}"></th:block></h2>
+    <div class="userSensorInfo" id="userSensorInfo"><em th:text="${user.userid} + '(' + ${user.username} + ')'" th:value="${user.userid}"></em><span><th:block th:text="#{account.select.user.manage}"></th:block></span></div>
+    <div class="btnDivLeftBottom">
+      <a class="btnCancel" id="btnCancel" onclick="history.back()"><i></i><th:block th:text="#{common.cancel}"></th:block></a><a class="btnCheck" id="btnCheck" onclick=manageDeviceAuthor()><i></i><th:block th:text="#{common.apply}"></th:block></a>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+//moobile menu
+
+</script>
+</body>
+</html>

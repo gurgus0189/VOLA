@@ -1,0 +1,100 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width" />
+<title>VITCON - THE HUB OF CONTROLLER</title>
+<script src="/js/jquery-2.1.4.min.js"></script>
+<script src="/js/jquery-ui-1.11.4.min.js"></script>
+<script src="/js/namespace.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/jquery.i18n.properties.js"></script>
+<script src="/js/jquery.cookie.js"></script>
+<script src="/js/language/language.js"></script>
+<script src="/js/mobile/mobile.js"></script>
+<script src="/js/mypage/user.js"></script>
+<link th:if="${localecd == 'en'}" href="/css/style_en.css" rel="stylesheet" type="text/css" />
+<link th:if="${localecd == 'ja'}" href="/css/style_ja.css" rel="stylesheet" type="text/css" />
+<link th:if="${localecd == 'ko'}" href="/css/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body class="mypage mypage_user">
+<div class="wrap">
+	<div th:include="fragment/header::frgHeader" class="header"></div>
+    <div class="contents">
+        <h2 class="subTitle subTitleMypage"><th:block th:text="#{title.mypage.account}"></th:block></h2>
+        <div class="searchTop mypageTop">
+            <ul class="searchTopList">
+                <li>
+                    <label for="inputIdLabel"><th:block th:text="#{account.id}"></th:block></label>
+                    <span class="txtInputBox01"><input type="email" id="inputId" onkeyup="writeUserAddEvent()" th:attr="placeholder=#{account.id.input}"  placeholder="vitcon@vitcon.co.kr" maxlength="50"></span>
+                    <em id="emailChkTxt" class="emailChkTxt" th:text="#{account.email.formerror}" style="display:none;"></em>
+                </li>
+                <li>
+                    <label for="inpuNameLabel"><th:block th:text="#{account.name}"></th:block></label>
+                    <span class="txtInputBox01" ><input type="text" id="inputName" onkeyup="writeUserAddEvent()" th:attr="placeholder=#{account.name.input}" placeholder="이름을 입력하세요" maxlength="50"></span>
+                </li>
+                <li>
+                    <label for="inputBelongLabel"><th:block th:text="#{account.organization}"></th:block></label>
+                    <span class="txtInputBox01"><input type="text" id="inputOrgan" onkeyup="writeUserAddEvent()" th:attr="placeholder=#{account.organization.input}" placeholder="소속을 입력하세요" maxlength="120"></span>
+                </li>
+                <li>
+                    <label for="inputMobileLabel"><th:block th:text="#{account.contact}"></th:block></label>
+                    <span class="txtInputBox01"><input type="text" id="inputPhone" onkeyup="writeUserAddEvent()" onkeydown="checkOnlyNumber(event)" th:attr="placeholder=#{account.contact.input}" placeholder="전화번호를 입력하세요" maxlength="15"></span>
+                    <em id="phoneChkTxt" class="emailChkTxt" style="display:none;"><th:block th:text="#{account.mobile.duplicate}"></th:block></em>
+                    <em id="phoneCnfTxt" class="emailChkTxt" style="display:none;"><th:block th:text="#{account.mobile.formerror}"></th:block></em>                    
+                </li>
+                <li>
+                    <label for="authorityLabel"><th:block th:text="#{account.auth}"></th:block></label>
+                    <span class="selBox02" id="selBox02">
+                        <select name="selGrade" id="selGrade" onchange="writeUserAddEvent()">
+                            <option value="000"><th:block th:text="#{account.select.auth}"></th:block></option>
+                            <option value="20"><th:block th:text="#{common.middlemanager}"></th:block></option>
+                            <option value="21"><th:block th:text="#{common.user}"></th:block></option>
+                        </select>
+                    </span>
+                    <em id="authChkTxt" class="emailChkTxt" th:text="#{account.add.tip}" style="display:none;"></em>
+                </li>
+            </ul>
+            <div class="userAddDiv"><span class="userAddBtn btnDisable" id="userAddBtn" style="cursor: pointer; pointer-events: all;"><i></i><th:block th:text="#{account.add}"></th:block></span></div>
+        </div>
+        <div class="listTable listTableUser" id="listTableUser">
+            <ul class="listTableHead">
+                <li>                
+                	<input type="checkbox" id="listChkAll">
+                	<label for="listChkAll" class="listChk"></label></li>
+                <li><th:block th:text="#{account.id}"></th:block></li>
+                <li><th:block th:text="#{account.name}"></th:block></li>
+                <li><th:block th:text="#{account.organization}"></th:block></li>
+                <li><th:block th:text="#{account.contact}"></th:block></li>
+                <li><th:block th:text="#{account.auth}"></th:block></li>
+                <li><th:block th:text="#{account.device.management}"></th:block></li>
+                <li><th:block th:text="#{account.passwd.reset}"></th:block></li>
+            </ul>
+            
+        </div>
+        <div class="btnDivLeftBottom"><a class="btnAccountDel btnDisable" id="btnAccountDel" onclick="deleteSubUser()" disabled="disabled" style="cursor: pointer;"><i></i><th:block th:text="#{account.select.remove}"></th:block></a></div>
+    </div>
+</div>
+<!--수정알림 layer start-->
+<div class="popupLayerEditResult" id="popupLayerEditResult" style="display:none;">
+    <div class="popupInnerEditResult" id="popupInnerEditResult">
+        <div class="popupEditResult" id="popupEditResult" style="display: none;"><i></i></div>
+        <div class="popupEditResultRed" id="popupEditResultRed" style="display: none;"><i></i></div>        
+    </div>
+</div>
+
+<!--수정알림 layer end-->
+<form action="/mypage/user_sensor.do" method="post" name="mypageUserForm">
+	<input type="hidden" name="muserid" id="muserid"> 	
+</form>
+<script type="text/javascript">
+//moobile menu
+$(document).ready(function() {
+    $(".mMenu").click(function(){
+        $(".nav").toggleClass("mNavOn");
+        $(this).toggleClass("mMenuClose");
+    });
+});
+</script>
+</body>
+</html>

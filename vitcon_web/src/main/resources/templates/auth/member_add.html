@@ -1,0 +1,90 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width" />
+<title>VITCON - THE HUB OF CONTROLLER</title>
+<script src="/js/jquery-2.1.4.min.js"></script>
+<script src="/js/namespace.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/jquery.i18n.properties.js"></script>
+<script src="/js/jquery.cookie.js"></script>
+<script src="/js/language/language.js"></script>
+<script src="/js/mobile/mobile.js"></script>
+<script src="/js/auth/member_add.js"></script>
+<link th:if="${localecd == 'en'}" href="/css/style_en.css" rel="stylesheet" type="text/css" />
+<link th:if="${localecd == 'ja'}" href="/css/style_ja.css" rel="stylesheet" type="text/css" />
+<link th:if="${localecd == 'ko'}" href="/css/login.css" rel="stylesheet" type="text/css" /> 
+</head>
+<body class="member member_join"> 
+<div class="wrap">
+    <div class="joinField">
+       <h2 class="memberTitle"><i></i><span><th:block th:text="#{signup.title}"></th:block></span></h2>
+        <div class="loginInputBox">
+            <fieldset>
+              <form action="/openapi/account/join" method="post">
+                <ul class="loginInputUl">
+                    <li class="joinInputTop">
+                        <label for="inputId"><th:block th:text="#{common.id}"></th:block></label>
+                        <input type="text" id="inputId" th:attr="placeholder=#{signup.idchcekmsg}" th:value="${param.email}">              
+                        <span class="btnIdChk" id="btnIdChk"><th:block th:text="#{signup.id.confirm}"></th:block></span>
+                    </li>
+                    <li class="joinInput">
+                        <label for="inputName"><th:block th:text="#{common.username}"></th:block></label>
+                        <input type="text" id="inputName" th:placeholder="#{signup.inputname}" th:value="${param.name}">
+                    </li>
+                    <li class="joinInput" id="joinPw">
+                        <label for="inputPw"><th:block th:text="#{singup.passwd}"></th:block></label>
+                        <input type="password" id="inputPw" th:placeholder="#{signup.passwdtip}">
+                    </li>
+                    <li class="joinInput" id="joinPwCnf">
+                        <label for="inputPwConfirm"><th:block th:text="#{signup.passwd.confirm}"></th:block></label>
+                        <input type="password" id="inputPwConfirm" th:placeholder="#{signup.passwdfirst}">
+                    </li>
+                    <li class="joinInput">
+                        <label for="inputPhone"><th:block th:text="#{signup.mobile}"></th:block></label>
+                        <input type="text" id="inputPhone" th:placeholder="#{mobile.form}" maxlength="15">
+                    </li>
+                    <li class="joinInput">
+                        <label for="selectAlarm"><th:block th:text="#{signup.alarm.info}"></th:block></label>
+                        <select name="" id="selectAlarm" class="popSelbox">
+                            <option th:value="1"><th:block th:text="#{signup.alarm.y}"></th:block></option>
+                            <option th:value="0"><th:block th:text="#{signup.alarm.n}"></th:block></option>
+                        </select>
+                    </li>
+                    <li class="joinInput">
+                        <label for="selectLang"><th:block th:text="#{signup.language.setting}"></th:block></label>
+                        <select name="" id="selectLang" class="popSelbox">
+                            <option th:value="ko">한국어</option>
+                            <option th:value="en">English</option>
+                            <option th:value="ja">日本語</option>
+                        </select>
+                    </li> 
+                    <!-- 히든으로 넘겨야 할 값 (포탈아이디, 포탈타입, 유효기간 2개) -->
+				    <input type="hidden" id ="portalid" name="portalid" th:value="${param.portalid}">
+				    <input type="hidden" id ="registrationtype" name="registrationtype" th:value="${param.registrationtype}">
+				    <input type="hidden" name="startdate" id="startdate"> 
+				    <input type="hidden" name="enddate" id="enddate">                    				    
+                </ul>
+                <div class="btnJoinCenter">
+                    <a class="btnPopNormal" id="btnPopNormal" style="cursor: pointer;"><th:block th:text="#{common.cancel}"></th:block><i></i></a>
+                    <a class="btnPopConfirm" id="btnPopConfirm" style="cursor: pointer;"><th:block th:text="#{signup}"></th:block><i></i></a>
+                </div>                		       
+              </form>
+            </fieldset>            
+            <!--메세지 start-->
+            <div class="loginWrong" id="loginWrong" style="display: none"><span></span></div>            
+            <div class="loginResult" id="loginResult" style="display: none"><span><em></em></span></div>
+            <!--메세지 end-->
+        </div>
+        <div class="memberShip">
+            <ul class="memberList">            
+                <li><a id="loginLink" name="loginLink"><th:block th:text="#{login.link}"></th:block></a></li>
+                <li><a id="findIdLink" name="findIdLink"><th:block th:text="#{login.findid}"></th:block></a></li>
+                <li><a id="findPasswordLink" name="findPasswordLink"><th:block th:text="#{login.findpasswd}"></th:block></a></li>                                                             
+            </ul>
+        </div>
+    </div>
+</div>
+</body>
+</html>

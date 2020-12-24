@@ -1,0 +1,88 @@
+@charset "utf-8";
+@import url("jquery-ui.min.css");
+@import url("basc.css");
+@import url("layout.css");
+
+@font-face { 
+	font-family: 'QuestrialRegular';
+	src: url(../fonts/Questrial-Regular.eot);
+    src: url(../fonts/Questrial-Regular.eot?#iefix) format('embedded-opentype'),
+         url(../fonts/Questrial-Regular.woff2) format('woff2'),
+         url(../fonts/Questrial-Regular.woff) format('woff'),
+         url(../fonts/Questrial-Regular.ttf) format('truetype');
+}  
+
+/* @font-face {
+  font-family: NanumGothic;
+  font-style: normal;
+  font-weight: normal; 
+  src: local(NanumGothic),
+       local('NanumGothic'),
+       local('Nanum Gothic'),
+       local('나눔고딕');
+}
+@font-face {
+  font-family: NanumGothic;
+  font-style: normal;
+  font-weight: bold;
+  src: local(NanumGothic-Bold),
+       local(NanumGothicBold),
+       local('NanumGothic-Bold'),
+       local('Nanum Gothic Bold'),
+       local('Nanum Gothic-Bold');
+} */
+
+/*
+@font-face {
+  font-family: 'Nanum Gothic';
+  font-style: normal;
+  font-weight: 400;
+  src: url(../fonts/notokr-regular.eot);
+  src: url(../fonts/notokr-regular.eot?#iefix) format('embedded-opentype'),
+       url(../fonts/notokr-regular.woff2) format('woff2'),
+       url(../fonts/notokr-regular.woff) format('woff'),
+       url(../fonts/notokr-regular.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Nanum Gothic';
+  font-style: normal;
+  font-weight: 700;
+  src: url(../fonts/notokr-bold.eot);
+  src: url(../fonts/notokr-bold.eot?#iefix) format('embedded-opentype'),
+       url(../fonts/notokr-bold.woff2) format('woff2'),
+       url(../fonts/notokr-bold.woff) format('woff'),
+       url(../fonts/notokr-bold.ttf) format('truetype');
+}
+*/
+/*
+@font-face {
+  font-family: 'Nanum Gothic';
+  font-style: normal;
+  font-weight: 400; 
+  src: local(NanumGothic),
+       local('NanumGothic'),
+       local('Nanum Gothic'),
+       local('나눔고딕');
+  src: url(../fonts/NanumGothic-Regular.eot);
+  src: url(../fonts/NanumGothic-Regular.eot?#iefix) format('embedded-opentype'),
+       url(../fonts/NanumGothic-Regular.woff2) format('woff2'),
+       url(../fonts/NanumGothic-Regular.woff) format('woff'),
+       url(../fonts/NanumGothic-Regular.ttf) format('truetype');
+}
+*/
+/*
+@font-face {
+  font-family: 'Nanum Gothic';
+  font-style: normal;
+  font-weight: 700;
+  src: local(NanumGothic),
+       local('NanumGothic'),
+       local('Nanum Gothic'),
+       local('나눔고딕');
+  src: url(../fonts/NanumGothic-Bold.eot);
+  src: url(../fonts/NanumGothic-Bold.eot?#iefix) format('embedded-opentype'),
+       url(../fonts/NanumGothic-Bold.woff2) format('woff2'),
+       url(../fonts/NanumGothic-Bold.woff) format('woff'),
+       url(../fonts/NanumGothic-Bold.ttf) format('truetype');
+}
+*/

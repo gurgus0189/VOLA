@@ -1,0 +1,194 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width" />
+<title>VITCON - THE HUB OF CONTROLLER</title>
+<script src="/js/jquery-2.1.4.min.js"></script>
+<script src="/js/jquery-ui-1.11.4.min.js"></script>
+<script src="/js/namespace.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/jquery.i18n.properties.js"></script>
+<script src="/js/jquery.cookie.js"></script>
+<script src="/js/language/language.js"></script>
+<script src="/js/mobile/mobile.js"></script>
+<link th:if="${localecd == 'en'}" href="/css/style_en.css" rel="stylesheet" type="text/css" />
+<link th:if="${localecd == 'ja'}" href="/css/style_ja.css" rel="stylesheet" type="text/css" />
+<link th:if="${localecd == 'ko'}" href="/css/style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript">
+var devicetypecd;
+var devicetypename;
+var manualtype;
+var maxlevel = 0;
+var imglist = [];
+var curlevel = 1;
+/*
+<li class="StepOn"><span>1단계</span></li>
+<li><span>2단계</span></li>
+<li><span>3단계</span></li>
+*/
+function showManual(level) {
+	var htmlguide = "";
+	if (level > maxlevel)
+		return;
+	
+	$("#appDeviceGuide").html(''); //remove html
+	
+	var imgpath = imglist[level - 1];
+	  
+	var arr = imgpath.split(".");
+	  
+	imgpath = arr[0] + "_" + $.i18n.prop('common.lang');
+	if (manualtype != "") {
+		imgpath += "_" + manualtype;
+	}
+	imgpath += "." + arr[1];
+	
+	htmlguide = "\n<div class='appDeviceGuide'>";
+	htmlguide += "\n   <p class='guideImg'><img src='" + imgpath + "' alt=''></p>";
+	htmlguide += "\n</div>";
+	
+	$("#appDeviceGuide").html(htmlguide);
+}
+
+function showStep(level) {
+	var idx = 1;
+	$("#manuallevel li").each(function() {		
+		$(this).removeClass();
+		if (level == idx) {
+			$(this).addClass('StepOn');			
+		}
+		idx++;
+	});
+}
+
+function btnPrev() {
+	if (curlevel <= 1) {
+		// 다음페이지로 이동(location.href 를 이용)
+		var url = "/device/categorylist.do";
+		location.href = url;
+		return;
+	}
+	curlevel--;
+	showStep(curlevel);
+	showManual(curlevel);
+}
+
+function btnNext() {
+	if (curlevel >= maxlevel) {
+		// 다음페이지로 이동(location.href 를 이용)
+
+		if (typeof appWebview !== "undefined") {
+			// android
+			appWebview.deviceRegister(devicetypecd, devicetypename);
+			location.href = "/dashboard/listview.do";
+		} else if (typeof webkit !== "undefined") {
+			// ios
+			var stringmsg = JSON.stringify({
+				"devicetypecd" : devicetypecd + ''
+				,"devicetypename" : devicetypename
+			});
+			webkit.messageHandlers.deviceRegister.postMessage(stringmsg);
+			location.href = "/dashboard/listview.do";
+		} else {
+			var alertApp = $.i18n.prop('device.regist.alert.app');
+			alert(alertApp);
+		}
+		return;
+	}
+	curlevel++;
+	showStep(curlevel);
+	showManual(curlevel);
+}
+
+function getDeviceManual(devicetypecd) {
+	var errorComment = $.i18n.prop('common.error');
+	
+	$.ajax({
+		type:"GET",
+		url:"/openapi/device/manual/list",
+		data: {"devicetypecd": devicetypecd},
+		dataType:"JSON", // 옵션이므로 JSON으로 받을게 아니면 안써도 됨
+		success : function(data) {
+			if (data.returnCode != 200) {
+				alert('error');
+				return;
+			}
+			
+			var list = data.data;
+			var manualstepclass = "";
+			
+			imglist = []; //초기화
+			
+			maxlevel = list.length;
+			
+			$("#manuallevel li").remove();
+			manualstepclass = "appDeviceRegiStep regiStep" + maxlevel;
+			
+			$("#manualstep").removeClass();				
+			$("#manualstep").addClass(manualstepclass);
+			
+			for (var i = 0; i < list.length; i++) {			
+				var html = "";
+				var liclass = "";
+								
+				if (i == 0) {
+					liclass = " class='StepOn'";					
+				}
+				
+				imglist.push(list[i].imagepath);
+				
+				var step = $.i18n.prop('device.regist.step');
+				
+				html += "\n<li " + liclass + "><span>" + (i + 1) + " " + step +"</span></li>";
+								
+				$("#manuallevel").append(html);
+			}
+			
+			curlevel = 1;			
+			showManual(curlevel); //level 1 show
+		},
+        error : function(xhr, status, error) {
+        	var errorComment = $.i18n.prop('common.error');
+        	alert(errorComment);
+        	//console.log("error");
+        }
+	});
+}
+
+$(function(){
+	devicetypecd = [[${devicetypecd}]];
+	devicetypename  = "[[${devicetypename}]]";
+	manualtype = "";
+
+	if (typeof webkit != "undefined") {
+		manualtype = "ios";
+	}
+
+	getDeviceManual(devicetypecd);
+});	
+</script>
+</head>
+
+<body class="app app_regi02a">
+<div class="wrapApp">
+    <div class="appTop"><a onClick="btnPrev()">back</a><h2><th:block th:text="#{title.device.regist}"></th:block></h2></div>
+    <div class="appTopInfo"><th:block th:text="#{device.regist.guide}"></th:block></div>
+    <div class="appDeviceRegiStep" id="manualstep">
+        <ul id="manuallevel">            
+        </ul>
+    </div>
+    <div id="appDeviceGuide">
+    </div>    
+    <div class="appDeviceGuideBtn">
+        <ul>
+            <li><a style="cursor:pointer" class="btnPrev" onClick="btnPrev()"><i></i><th:block th:text="#{common.previous}"></th:block></a></li>
+            <li><a style="cursor:pointer" class="btnNext" onClick="btnNext()"><th:block th:text="#{common.next}"></th:block><i></i></a></li>
+        </ul>
+    </div>
+</div> 
+
+</body>
+
+
+</html>

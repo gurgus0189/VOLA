@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+     PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+     
+<mapper namespace="com.vitcon.service.graph.GraphMapper">
+
+	<select id="getGraphData" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+     <![CDATA[
+     	SELECT 
+     		a.regdate,
+     		a.data
+     	FROM devicedata a
+     		 
+     	WHERE a.deviceid = #{deviceid} 
+     	AND	  a.channelid = #{channelid} 
+     	AND a.regdate > #{startdate} AND a.regdate < #{enddate}
+     ]]>	
+    </select>
+
+	
+	
+	
+	<!-- <select id="getChartData" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+     <![CDATA[
+		SELECT a.regdate
+		      ,group_concat(a.channelid SEPARATOR '|') channelid
+		      ,group_concat(a.data SEPARATOR '|') data
+		      ,b.devicename
+		      ,b.devicetypecd
+              ,c.groupname    
+		  FROM devicedata a
+		      ,device b
+		      ,(
+		   SELECT ifnull(puserid, userid) as userid 
+			FROM user
+		   WHERE userid = #{userid}
+		       ) d
+		        ,devicegroup c
+		   WHERE a.regdate > #{startdate} AND a.regdate < #{enddate}
+             AND d.userid = b.userid
+		     AND a.deviceid = #{deviceid}
+		     AND a.deviceid = b.deviceid
+		     AND b.groupid = c.groupid	     
+		  ]]>
+		  <if test = "groupid != null">
+             AND b.groupid = #{groupid}
+		  </if>		     
+		GROUP BY a.regdate
+	 </select> -->
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<!-- 날짜별 과거 데이터 조회 기능 -->
+    <select id="test" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+     <![CDATA[
+		SELECT DATE_FORMAT(a.regdate, "%Y-%m-%d") AS regdate
+              ,DATE_FORMAT(a.regdate, "%H:%i") AS regdateTime
+		      ,group_concat(a.channelid SEPARATOR '|') channelid
+		      ,group_concat(a.data SEPARATOR '|') data
+		      ,b.devicename
+		      ,b.devicetypecd
+              ,c.groupname    
+		  FROM devicedata a
+		      ,device b
+		      ,(
+		   SELECT ifnull(puserid, userid) as userid 
+			FROM user
+		   WHERE userid = #{userid}
+		       ) d
+		        ,devicegroup c
+		   WHERE a.regdate > #{startdate} AND a.regdate < #{enddate}
+             AND d.userid = b.userid
+		     AND a.deviceid = #{deviceid}
+		     AND a.deviceid = b.deviceid
+		     AND b.groupid = c.groupid	     
+		  ]]>
+		  <if test = "groupid != null">
+             AND b.groupid = #{groupid}
+		  </if>		     
+		GROUP BY a.regdate
+	 </select>
+	
+	
+	
+
+</mapper>

@@ -1,0 +1,462 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+     PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.vitcon.service.alarm.AlarmMsgMapper">
+
+	<resultMap type="com.vitcon.service.device.DeviceGroupVO" id="DeviceGroupVOMap">
+       <result column="groupname" property="groupname"></result>
+	</resultMap>
+	
+	<resultMap type="com.vitcon.service.user.UserVO" id="UserVOMap">
+		<result column="userid" property="useird"/>		
+		<result column="puserid" property="puserid"/>		
+	</resultMap>
+	
+	<resultMap type="com.vitcon.service.device.DeviceVO" id="DeviceVOMap">		
+	</resultMap>
+			
+	<resultMap type="com.vitcon.service.device.DeviceAlarmVO" id="DeviceAlarmVOMap">
+		<result column="deviceid" property="deviceid"/>
+		<result column="regdate" property="regdate"/>
+		<result column="data" property="data"/>
+		<result column="json" property="json"/>
+	</resultMap>
+	
+	<resultMap type="com.vitcon.service.device.IntegratedVO" id="IntegratedVO">
+		<collection property="user" resultMap="UserVOMap"></collection>
+        <collection property="device" resultMap="DeviceVOMap"></collection>
+        <collection property="devicegroup" resultMap="DeviceGroupVOMap"></collection>
+        <collection property="devicealarm" resultMap="DeviceAlarmVOMap"></collection>
+	</resultMap>
+
+	<!-- 알람 내역 조회 -->
+	<select id="getAlarmMsg" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT SQL_CALC_FOUND_ROWS a.deviceid
+		      ,b.devicetypecd
+	      	  ,DATE_FORMAT(a.regdate, "%Y-%m-%d\n%H:%i:%S") AS regdate
+	      	  ,a.data
+		      ,d.groupname
+		      ,b.groupid
+		      ,b.devicetypecd
+              ,b.devicename
+	      FROM devicealarm a
+		      ,device b
+	          ,(
+		       SELECT ifnull(puserid, userid) as userid
+		         FROM user
+		        WHERE userid = #{userid}
+	           ) c
+	          ,devicegroup d
+	     WHERE a.deviceid = b.deviceid
+	    <![CDATA[
+	       AND (a.regdate >= #{regdatestart} AND a.regdate < #{regdateend})	       
+		]]>
+	       <if test="groupid != null and !groupid.equals('')">
+	       	AND b.groupid = #{groupid}
+	       </if>
+	       <if test="devicetypecd != null and !devicetypecd.equals('')">
+	       	AND b.devicetypecd = #{devicetypecd}
+	       </if>
+		   <if test="deviceid != null and !deviceid.equals('')">
+	       	AND a.deviceid = #{deviceid}
+	       </if>
+	       AND b.userid = c.userid
+	       AND b.groupid = d.groupid
+	       ORDER BY a.regdate desc
+	       limit #{page}, #{perPage}
+	</select>
+	
+	<!-- 알람 내역 조회 -->
+	<select id="getAlarmMsgChildUser" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT SQL_CALC_FOUND_ROWS a.deviceid
+		      ,b.devicetypecd
+	      	  ,DATE_FORMAT(a.regdate, "%Y-%m-%d") AS regdate
+              ,DATE_FORMAT(a.regdate, "%H:%i:%S") AS regdateTime
+	      	  ,a.data
+		      ,d.groupname
+		      ,b.groupid
+              ,b.devicename
+	      FROM devicealarm a
+		      ,device b
+	          ,devicegroup d
+	     WHERE a.deviceid in
+	     
+	     (SELECT a.deviceid 
+			FROM userdevice a, device b 
+			WHERE 
+			a.userid = #{userid}
+		   <if test="groupid != null and !groupid.equals('')">
+	       	AND b.groupid = #{groupid}
+	       </if>
+	       <if test="devicetypecd != null and !devicetypecd.equals('')">
+	       	AND b.devicetypecd = #{devicetypecd}
+	       </if>
+		   <if test="deviceid != null and !deviceid.equals('')">
+	       	AND a.deviceid = #{deviceid}
+	       </if>
+	       )
+	    <![CDATA[
+	       AND (a.regdate >= #{regdatestart} AND a.regdate < #{regdateend})	       
+		]]>
+	       AND a.deviceid = b.deviceid
+	       AND b.groupid = d.groupid
+	       ORDER BY a.regdate desc
+	       limit #{page}, #{perPage}
+	</select>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	<!-- 알람 내역 조회 -->
+	<select id="getAlarmData" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT 
+			   a.deviceid
+			  ,a.seqno
+		      ,b.devicetypecd
+	      	  ,DATE_FORMAT(a.regdate, "%Y-%m-%d\n%H:%i:%S") AS regdate
+	      	  ,a.data
+		      ,d.groupname
+		      ,b.groupid
+		      ,b.devicetypecd
+              ,b.devicename
+	      FROM devicealarm a
+		      ,device b
+	          ,(
+		       SELECT ifnull(puserid, userid) as userid
+		         FROM user
+		        WHERE userid = #{userid}
+	           ) c
+	          ,devicegroup d
+	     WHERE a.deviceid = b.deviceid
+	    <![CDATA[
+	       AND (a.regdate >= #{regdatestart} AND a.regdate < #{regdateend})	       
+		]]>
+	       <if test="groupid != null and !groupid.equals('')">
+	       	AND b.groupid = #{groupid}
+	       </if>
+	       <if test="devicetypecd != null and !devicetypecd.equals('')">
+	       	AND b.devicetypecd = #{devicetypecd}
+	       </if>
+		   <if test="deviceid != null and !deviceid.equals('')">
+	       	AND a.deviceid = #{deviceid}
+	       </if>
+	       AND b.userid = c.userid
+	       AND b.groupid = d.groupid
+	       ORDER BY a.regdate desc
+	       LIMIT 0,100
+	</select>
+	
+	<!-- 알람 내역 조회 다음 버튼 -->
+	<select id="getAlarmNextData" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT 
+			   a.deviceid
+			  ,a.seqno
+		      ,b.devicetypecd
+	      	  ,DATE_FORMAT(a.regdate, "%Y-%m-%d\n%H:%i:%S") AS regdate
+	      	  ,a.data
+		      ,d.groupname
+		      ,b.groupid
+		      ,b.devicetypecd
+              ,b.devicename
+	      FROM devicealarm a
+		      ,device b
+	          ,(
+		       SELECT ifnull(puserid, userid) as userid
+		         FROM user
+		        WHERE userid = #{userid}
+	           ) c
+	          ,devicegroup d
+	     WHERE a.deviceid = b.deviceid
+	    <![CDATA[
+	       AND (a.regdate >= #{regdatestart} AND a.regdate < #{regdateend})	       
+		]]>
+	       <if test="groupid != null and !groupid.equals('')">
+	       	AND b.groupid = #{groupid}
+	       </if>
+	       <if test="devicetypecd != null and !devicetypecd.equals('')">
+	       	AND b.devicetypecd = #{devicetypecd}
+	       </if>
+		   <if test="deviceid != null and !deviceid.equals('')">
+	       	AND a.deviceid = #{deviceid}
+	       </if>
+	       AND b.userid = c.userid
+	       AND b.groupid = d.groupid
+	    <![CDATA[ 
+	       AND a.seqno < #{lastSeqno}
+	    ]]>   
+	       <!-- ORDER BY a.regdate desc -->
+	       ORDER BY a.seqno desc
+	       LIMIT 100
+	</select>
+	
+	<!-- 알람 내역 조회 이전 버튼 -->
+	<select id="getAlarmPreData" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT 
+			   a.deviceid
+			  ,a.seqno
+		      ,b.devicetypecd
+	      	  ,DATE_FORMAT(a.regdate, "%Y-%m-%d\n%H:%i:%S") AS regdate
+	      	  ,a.data
+		      ,d.groupname
+		      ,b.groupid
+		      ,b.devicetypecd
+              ,b.devicename
+	      FROM devicealarm a
+		      ,device b
+	          ,(
+		       SELECT ifnull(puserid, userid) as userid
+		         FROM user
+		        WHERE userid = #{userid}
+	           ) c
+	          ,devicegroup d
+	     WHERE a.deviceid = b.deviceid
+	    <![CDATA[
+	       AND (a.regdate >= #{regdatestart} AND a.regdate < #{regdateend})	       
+		]]>
+	       <if test="groupid != null and !groupid.equals('')">
+	       	AND b.groupid = #{groupid}
+	       </if>
+	       <if test="devicetypecd != null and !devicetypecd.equals('')">
+	       	AND b.devicetypecd = #{devicetypecd}
+	       </if>
+		   <if test="deviceid != null and !deviceid.equals('')">
+	       	AND a.deviceid = #{deviceid}
+	       </if>
+	       AND b.userid = c.userid
+	       AND b.groupid = d.groupid
+	    <![CDATA[ 
+	       AND a.seqno > #{firstSeqno}
+	    ]]>   
+	       <!-- ORDER BY a.regdate desc -->
+	       ORDER BY a.seqno asc
+	       LIMIT 100
+	</select>
+	
+	<!-- 알람 내역 조회 처음으로 -->
+	<select id="getAlarmHomeData" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT 
+			   a.deviceid
+			  ,a.seqno
+		      ,b.devicetypecd
+	      	  ,DATE_FORMAT(a.regdate, "%Y-%m-%d\n%H:%i:%S") AS regdate
+	      	  ,a.data
+		      ,d.groupname
+		      ,b.groupid
+		      ,b.devicetypecd
+              ,b.devicename
+	      FROM devicealarm a
+		      ,device b
+	          ,(
+		       SELECT ifnull(puserid, userid) as userid
+		         FROM user
+		        WHERE userid = #{userid}
+	           ) c
+	          ,devicegroup d
+	     WHERE a.deviceid = b.deviceid
+	    <![CDATA[
+	       AND (a.regdate >= #{regdatestart} AND a.regdate < #{regdateend})	       
+		]]>
+	       <if test="groupid != null and !groupid.equals('')">
+	       	AND b.groupid = #{groupid}
+	       </if>
+	       <if test="devicetypecd != null and !devicetypecd.equals('')">
+	       	AND b.devicetypecd = #{devicetypecd}
+	       </if>
+		   <if test="deviceid != null and !deviceid.equals('')">
+	       	AND a.deviceid = #{deviceid}
+	       </if>
+	       AND b.userid = c.userid
+	       AND b.groupid = d.groupid
+	    <![CDATA[ 
+	       AND a.seqno <= #{homeSeqno}
+	    ]]>   
+	       <!-- ORDER BY a.regdate desc -->
+	       ORDER BY a.seqno desc
+	       LIMIT 100
+	</select>
+	
+	
+	
+	
+	
+	
+	
+	
+	<!-- 하위 계정 알람 데이터 -->
+	<select id="getAlarmDataMsgChildUser" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT 
+		      a.deviceid
+		     ,a.seqno
+		     ,b.devicetypecd
+			 ,DATE_FORMAT(a.regdate, "%Y-%m-%d\n%H:%i:%S") AS regdate
+			 ,a.data
+		     ,d.groupname
+		     ,b.groupid
+		     ,b.devicetypecd
+		     ,b.devicename
+		FROM devicealarm a
+		    ,device b
+		    ,devicegroup d
+		WHERE a.deviceid in
+		
+			(SELECT a.deviceid 
+				FROM userdevice a, device b 
+			 WHERE a.userid = #{userid}
+			  <if test="groupid != null and !groupid.equals('')">	
+		 		AND b.groupid = #{groupid}
+		 	  </if>
+		 	  <if test="devicetypecd != null and !devicetypecd.equals('')">	
+		 		AND b.devicetypecd = #{devicetypecd}
+		 	  </if>
+		 	  <if test="deviceid != null and !deviceid.equals('')">	
+		 		AND a.deviceid = #{deviceid} 
+		 	  </if>	
+		 	  )
+	<![CDATA[ 		
+		AND (a.regdate >= #{regdatestart} AND a.regdate < #{regdateend})	   
+	]]>     
+		AND a.deviceid = b.deviceid
+		AND b.groupid = d.groupid
+		ORDER BY a.regdate desc
+		limit 0,100
+	</select>
+	
+	
+	<!-- 하위 계정 알람 다음 데이터 -->
+	<select id="getAlarmNextMsgChildUser" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT 
+		      a.deviceid
+		     ,a.seqno
+		     ,b.devicetypecd
+			 ,DATE_FORMAT(a.regdate, "%Y-%m-%d\n%H:%i:%S") AS regdate
+			 ,a.data
+		     ,d.groupname
+		     ,b.groupid
+		     ,b.devicetypecd
+		     ,b.devicename
+		FROM devicealarm a
+		    ,device b
+		    ,devicegroup d
+		WHERE a.deviceid in
+		
+			(SELECT a.deviceid 
+				FROM userdevice a, device b 
+			 WHERE a.userid = #{userid}
+			  <if test="groupid != null and !groupid.equals('')">	
+		 		AND b.groupid = #{groupid}
+		 	  </if>
+		 	  <if test="devicetypecd != null and !devicetypecd.equals('')">	
+		 		AND b.devicetypecd = #{devicetypecd}
+		 	  </if>
+		 	  <if test="deviceid != null and !deviceid.equals('')">	
+		 		AND a.deviceid = #{deviceid} 
+		 	  </if>	
+		 	  )
+	<![CDATA[ 		
+		AND (a.regdate >= #{regdatestart} AND a.regdate < #{regdateend})	  
+		AND a.seqno < #{lastSeqno} 
+	]]>     
+		AND a.deviceid = b.deviceid
+		AND b.groupid = d.groupid
+		ORDER BY a.seqno desc
+		limit 100
+	</select>
+	
+	
+	<!-- 하위 계정 알람 다음 데이터 -->
+	<select id="getAlarmPreMsgChildUser" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT 
+		      a.deviceid
+		     ,a.seqno
+		     ,b.devicetypecd
+			 ,DATE_FORMAT(a.regdate, "%Y-%m-%d\n%H:%i:%S") AS regdate
+			 ,a.data
+		     ,d.groupname
+		     ,b.groupid
+		     ,b.devicetypecd
+		     ,b.devicename
+		FROM devicealarm a
+		    ,device b
+		    ,devicegroup d
+		WHERE a.deviceid in
+		
+			(SELECT a.deviceid 
+				FROM userdevice a, device b 
+			 WHERE a.userid = #{userid}
+			  <if test="groupid != null and !groupid.equals('')">	
+		 		AND b.groupid = #{groupid}
+		 	  </if>
+		 	  <if test="devicetypecd != null and !devicetypecd.equals('')">	
+		 		AND b.devicetypecd = #{devicetypecd}
+		 	  </if>
+		 	  <if test="deviceid != null and !deviceid.equals('')">	
+		 		AND a.deviceid = #{deviceid} 
+		 	  </if>	
+		 	  )
+	<![CDATA[ 		
+		AND (a.regdate >= #{regdatestart} AND a.regdate < #{regdateend})	  
+		AND a.seqno > #{firstSeqno}
+	]]>     
+		AND a.deviceid = b.deviceid
+		AND b.groupid = d.groupid
+		ORDER BY a.seqno asc
+		limit 100
+	</select>
+	
+	<!-- 하위 계정 알람 다음 데이터 -->
+	<select id="getAlarmHomeMsgChildUser" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT 
+		      a.deviceid
+		     ,a.seqno
+		     ,b.devicetypecd
+			 ,DATE_FORMAT(a.regdate, "%Y-%m-%d\n%H:%i:%S") AS regdate
+			 ,a.data
+		     ,d.groupname
+		     ,b.groupid
+		     ,b.devicetypecd
+		     ,b.devicename
+		FROM devicealarm a
+		    ,device b
+		    ,devicegroup d
+		WHERE a.deviceid in
+		
+			(SELECT a.deviceid 
+				FROM userdevice a, device b 
+			 WHERE a.userid = #{userid}
+			  <if test="groupid != null and !groupid.equals('')">	
+		 		AND b.groupid = #{groupid}
+		 	  </if>
+		 	  <if test="devicetypecd != null and !devicetypecd.equals('')">	
+		 		AND b.devicetypecd = #{devicetypecd}
+		 	  </if>
+		 	  <if test="deviceid != null and !deviceid.equals('')">	
+		 		AND a.deviceid = #{deviceid} 
+		 	  </if>	
+		 	  )
+	<![CDATA[ 		
+		AND (a.regdate >= #{regdatestart} AND a.regdate < #{regdateend})	  
+		AND a.seqno <= #{homeSeqno}
+	]]>     
+		AND a.deviceid = b.deviceid
+		AND b.groupid = d.groupid
+		ORDER BY a.seqno desc
+		limit 100
+	</select>
+
+
+
+
+
+
+</mapper>

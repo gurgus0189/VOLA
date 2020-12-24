@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+     PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+     "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="com.vitcon.service.kindrecord.KindRecordMapper">
+
+    <resultMap type="com.vitcon.service.user.UserVO" id="UserVOMap">
+       <result column="userid" property="userid"></result>
+       <result column="username" property="username"></result> 
+       <result column="puserid" property="puserid"></result> 
+    </resultMap>
+    
+    <resultMap type="com.vitcon.service.device.DeviceVO" id="DeviceVOMap">
+       <result column="deviceid" property="deviceid"></result>
+       <result column="devicename" property="devicename"></result>
+       <result column="userid" property="userid"></result>
+       <result column="createdate" property="createdate"></result>
+       <result column="updatedate" property="updatedate"></result>
+       <result column="devicetypecd" property="devicetypecd"></result>
+       <result column="groupid" property="groupid"></result>
+       <result column="devicedesc" property="devicedesc"></result>
+       <result column="deleteflag" property="deleteflag"></result>
+    </resultMap>
+    
+	<resultMap type="com.vitcon.service.device.DeviceGroupVO" id="DeviceGroupVOMap">
+       <result column="groupid" property="groupid"></result>
+       <result column="groupname" property="groupname"></result>
+       <result column="userid" property="userid"></result>       
+       <result column="defaultyn" property="defaultyn"></result>
+	</resultMap>
+
+	<resultMap type="com.vitcon.service.device.DeviceDataVO" id="DeviceDataVOMap">
+       <result column="deviceid" property="deviceid"></result>
+       <result column="channelid" property="channelid"></result>       
+       <result column="regdate" property="regdate"></result>
+	   <result column="regdate" property="startdate"></result>
+	   <result column="regdate" property="enddate"></result>        
+       <result column="data" property="data"></result>
+       <result column="json" property="json"></result>
+	</resultMap>
+	
+	<resultMap type="com.vitcon.service.kindrecord.CalcDataVO" id="CalcDataVOMap">
+       <result column="avgVal" property="avgVal"></result>
+       <result column="minVal" property="minVal"></result>
+	   <result column="maxVal" property="maxVal"></result>
+       <result column="calcVal" property="calcVal"></result>
+       <result column="stdVal" property="stdVal"></result>
+	</resultMap>
+    
+    <resultMap type="com.vitcon.service.device.IntegratedVO" id="getAllAnalyzeList">
+       <collection property="user" resultMap="UserVOMap"></collection>
+       <collection property="calcdata" resultMap="CalcDataVOMap"></collection>
+       <collection property="device" resultMap="DeviceVOMap"></collection>
+       <collection property="devicegroup" resultMap="DeviceGroupVOMap"></collection>
+       <collection property="devicedata" resultMap="DeviceDataVOMap"></collection>
+    </resultMap>
+
+	 <!-- 전체 통계 리스트 --> 
+    <select id="getEntireStatisticList"  parameterType="Object" resultType="java.util.HashMap">
+    <![CDATA[
+		SELECT a.channelid
+		      ,b.deviceid
+		      ,b.devicetypecd		      
+		      ,AVG(a.data) avgVal
+			  ,MIN(a.data) minVal
+		      ,MAX(a.data) maxVal
+		      ,(MAX(a.data)-MIN(a.data)) calcVal
+		      ,STD(a.data) stdVal
+		  FROM devicedata a
+		      ,device b
+		      ,(
+		       SELECT ifnull(puserid, userid) as userid 
+		         FROM user
+		        WHERE userid = #{userid}
+			   ) c
+		WHERE a.regdate>#{startdate} AND a.regdate<#{enddate}
+		  AND b.devicetypecd=#{devicetypecd}
+		  AND a.deviceid=b.deviceid
+		  AND b.userid=c.userid
+		GROUP BY a.channelid
+		ORDER BY NULL
+		]]>
+    </select>
+    
+    <!-- 그룹 통계 리스트 --> 
+    <select id="getGroupStatisticList"  parameterType="Object" resultType="java.util.HashMap">
+    <![CDATA[
+	SELECT a.*
+	  FROM (
+			SELECT a.channelid channelid
+			      ,b.devicetypecd
+				  ,d.groupname groupname
+				  ,b.groupid
+			      ,AVG(a.data) avgVal
+				  ,MIN(a.data) minVal
+			      ,MAX(a.data) maxVal
+			      ,(MAX(a.data)-MIN(a.data)) calcVal
+			      ,STD(a.data) stdVal
+			  FROM devicedata a
+			      ,device b
+			      ,(
+			       SELECT ifnull(puserid, userid) as userid 
+			         FROM user
+			        WHERE userid = #{userid}
+				   ) c
+			      ,devicegroup d
+			WHERE a.regdate>#{startdate} AND a.regdate<#{enddate}
+			  AND b.devicetypecd=#{devicetypecd}
+			  AND a.deviceid=b.deviceid
+			  AND b.userid=c.userid
+			  AND d.groupid=b.groupid
+			GROUP BY d.groupid
+					,a.channelid
+			ORDER BY NULL
+	       ) a
+	ORDER BY a.groupid, a.channelid
+		]]>
+    </select>
+    
+    <!-- 디바이스별 통계 리스트 -->
+    <select id="getSensorStatisticList" parameterType="Object" resultType="java.util.HashMap">
+    <![CDATA[
+		SELECT a.*
+		  FROM (
+				SELECT a.channelid channelid
+				       ,b.devicetypecd devicetypecd
+					   ,d.groupname groupname
+					   ,b.devicename devicename
+					   ,a.deviceid
+				       ,AVG(a.data) avgVal
+				       ,MIN(a.data) minVal
+				       ,MAX(a.data) maxVal
+				       ,(MAX(a.data) - MIN(a.data)) calcVal
+				       ,STD(a.data) stdVal
+				FROM devicedata a
+					,device b
+				    ,(
+					 SELECT ifnull(puserid, userid) as userid
+					   FROM user
+					  WHERE userid = #{userid}
+				      ) c
+				      ,devicegroup d
+				WHERE a.regdate > #{startdate} AND a.regdate < #{enddate}
+				  AND b.devicetypecd = #{devicetypecd}
+				  AND a.deviceid = b.deviceid
+				  AND b.userid = c.userid
+				  AND b.groupid = d.groupid
+				  GROUP BY a.deviceid
+				          ,a.channelid    
+				 ORDER BY NULL
+		      ) a
+		ORDER BY a.deviceid, a.channelid
+    ]]>
+    </select>
+    
+    <!-- 채널의 개수 구하기 -->
+    <select id="getChannelCnt" parameterType="Object" resultType="int">
+    <![CDATA[
+    	SELECT COUNT(a.channelid) AS cnt
+    	  FROM (
+		    	SELECT a.channelid
+				      ,b.deviceid
+				      ,b.devicetypecd		      
+				      ,AVG(a.data) avgVal
+					  ,MIN(a.data) minVal
+				      ,MAX(a.data) maxVal
+				      ,(MAX(a.data)-MIN(a.data)) calcVal
+				      ,STD(a.data) stdVal
+				  FROM devicedata a
+				      ,device b
+				      ,(
+				       SELECT ifnull(puserid, userid) as userid 
+				         FROM user
+				        WHERE userid = #{userid}
+					   ) c
+				WHERE a.regdate>#{startdate} AND a.regdate<#{enddate}
+			      AND b.devicetypecd=#{devicetypecd}
+				  AND a.deviceid=b.deviceid
+				  AND b.userid=c.userid
+				GROUP BY a.channelid
+			) a
+	]]>
+    </select>
+    
+    <select id="getT10DayStatisticList"  parameterType="java.util.HashMap" resultType="java.util.HashMap">
+    	SELECT 
+			a.regdate
+			,group_concat(a.channelid SEPARATOR '|') channelid
+			,group_concat(a.avg SEPARATOR '|') avg
+			,group_concat(a.max SEPARATOR '|') max 
+			,group_concat(a.min SEPARATOR '|') min
+		FROM statisticst10 a 
+			WHERE a.regdate BETWEEN #{startdate} AND #{enddate}
+			AND a.deviceid = #{deviceid}
+			GROUP BY a.regdate
+			ORDER BY HOUR(a.regdate) ASC
+    </select>
+    
+    <select id="getT10MonthStatisticList"  parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		 SELECT * FROM(
+			SELECT  
+			a.regdate AS regdate
+			,group_concat(a.channelid SEPARATOR '|') channelid
+			,group_concat(a.avg SEPARATOR '|') avg
+			,group_concat(a.max SEPARATOR '|') max 
+			,group_concat(a.min SEPARATOR '|') min
+			FROM statisticst10 a 
+			WHERE a.regdate BETWEEN #{startdate} AND #{enddate}
+			AND a.deviceid = #{deviceid}
+			GROUP BY a.regdate
+			) c
+		GROUP BY DAYOFMONTH(c.regdate)
+		ORDER BY DAYOFMONTH(c.regdate) asc
+    </select>
+    
+    <select id="getT10YearStatisticList"  parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		 SELECT * FROM(
+			SELECT  
+			a.regdate AS regdate
+			,group_concat(a.channelid SEPARATOR '|') channelid
+			,group_concat(a.avg SEPARATOR '|') avg
+			,group_concat(a.max SEPARATOR '|') max 
+			,group_concat(a.min SEPARATOR '|') min
+		   
+			FROM statisticst10 a 
+			WHERE a.regdate BETWEEN #{startdate} AND #{enddate}
+			AND a.deviceid = #{deviceid}
+			GROUP BY a.regdate
+			) c
+		GROUP BY MONTH(c.regdate)
+		ORDER BY MONTH(c.regdate) asc
+    </select>
+    
+    <select id="getH10DayStatisticList"  parameterType="java.util.HashMap" resultType="java.util.HashMap">
+    	SELECT 
+			a.regdate
+			,group_concat(a.channelid SEPARATOR '|') channelid
+			,group_concat(a.avg SEPARATOR '|') avg
+			,group_concat(a.max SEPARATOR '|') max 
+			,group_concat(a.min SEPARATOR '|') min
+		FROM statisticsh10 a 
+			WHERE a.regdate BETWEEN #{startdate} AND #{enddate}
+			AND a.deviceid = #{deviceid}
+			GROUP BY a.regdate
+			ORDER BY HOUR(a.regdate) ASC
+    </select>
+    
+    <select id="getH10MonthStatisticList"  parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		 SELECT * FROM(
+			SELECT  
+			a.regdate AS regdate
+			,group_concat(a.channelid SEPARATOR '|') channelid
+			,group_concat(a.avg SEPARATOR '|') avg
+			,group_concat(a.max SEPARATOR '|') max 
+			,group_concat(a.min SEPARATOR '|') min
+			FROM statisticsh10 a 
+			WHERE a.regdate BETWEEN #{startdate} AND #{enddate}
+			AND a.deviceid = #{deviceid}
+			GROUP BY a.regdate
+			) c
+		GROUP BY DAYOFMONTH(c.regdate)
+		ORDER BY DAYOFMONTH(c.regdate) asc
+    </select>
+    
+    <select id="getH10YearStatisticList"  parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		 SELECT * FROM(
+			SELECT  
+			a.regdate AS regdate
+			,group_concat(a.channelid SEPARATOR '|') channelid
+			,group_concat(a.avg SEPARATOR '|') avg
+			,group_concat(a.max SEPARATOR '|') max 
+			,group_concat(a.min SEPARATOR '|') min
+			FROM statisticsh10 a 
+			WHERE a.regdate BETWEEN #{startdate} AND #{enddate}
+			AND a.deviceid = #{deviceid}
+			GROUP BY a.regdate
+			) c
+		GROUP BY MONTH(c.regdate)
+		ORDER BY MONTH(c.regdate) asc
+    </select>
+    
+    <select id="getT10GridDayStatisticList"  parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	    SELECT  
+			a.regdate
+			,a.deviceid
+			,group_concat(a.channelid SEPARATOR '|') channelid
+		   ,group_concat(a.avg SEPARATOR '|') avg
+			,group_concat(a.max SEPARATOR '|') max 
+			,group_concat(a.min SEPARATOR '|') min	
+		FROM statisticst10 a
+			WHERE a.regdate BETWEEN #{startdate} AND #{enddate}
+			AND a.deviceid = #{deviceid}
+			AND a.channelid = #{channelid_start}
+			GROUP BY a.regdate	
+			ORDER BY HOUR(a.regdate) ASC
+    </select>
+    
+    <select id="getT10GridMonthStatisticList"  parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	    SELECT * FROM(
+			SELECT  
+			a.regdate AS regdate
+			,group_concat(a.channelid SEPARATOR '|') channelid
+			,group_concat(a.avg SEPARATOR '|') avg
+			,group_concat(a.max SEPARATOR '|') max 
+			,group_concat(a.min SEPARATOR '|') min
+		FROM statisticst10 a 
+			WHERE a.regdate BETWEEN #{startdate} AND #{enddate}
+			AND a.deviceid = #{deviceid}
+			AND a.channelid = #{channelid_start}
+			GROUP BY a.regdate
+			) c
+		GROUP BY DAYOFMONTH(c.regdate)
+		ORDER BY DAYOFMONTH(c.regdate) asc	
+    </select>
+    
+    <select id="getT10GridYearStatisticList"  parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	    SELECT * FROM(
+			SELECT  
+			a.regdate AS regdate
+			,group_concat(a.channelid SEPARATOR '|') channelid
+			,group_concat(a.avg SEPARATOR '|') avg
+			,group_concat(a.max SEPARATOR '|') max 
+			,group_concat(a.min SEPARATOR '|') min
+		FROM statisticst10 a 
+			WHERE a.regdate BETWEEN #{startdate} AND #{enddate}
+			AND a.deviceid = #{deviceid}
+			AND a.channelid = #{channelid_start}
+			GROUP BY a.regdate
+			) c
+		GROUP BY MONTH(c.regdate)
+		ORDER BY MONTH(c.regdate) asc
+    </select>
+    
+    <!-- H10 일별 Grid 통계 -->
+    <select id="getH10GridDayStatisticList"  parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	    SELECT  
+			a.regdate
+			,a.deviceid
+			,group_concat(a.channelid SEPARATOR '|') channelid
+		   ,group_concat(a.avg SEPARATOR '|') avg
+			,group_concat(a.max SEPARATOR '|') max 
+			,group_concat(a.min SEPARATOR '|') min	
+		FROM statisticsh10 a
+			WHERE a.regdate BETWEEN #{startdate} AND #{enddate}
+			AND a.deviceid = #{deviceid}
+			AND a.channelid IN( #{channelid_start} , #{channelid_end} )
+			GROUP BY a.regdate	
+			ORDER BY HOUR(a.regdate) ASC
+    </select>
+    
+    <!-- H10 월별 Grid 통계 -->
+    <select id="getH10GridMonthStatisticList"  parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	    SELECT * FROM(
+			SELECT  
+			a.regdate AS regdate
+			,group_concat(a.channelid SEPARATOR '|') channelid
+			,group_concat(a.avg SEPARATOR '|') avg
+			,group_concat(a.max SEPARATOR '|') max 
+			,group_concat(a.min SEPARATOR '|') min
+		FROM statisticsh10 a 
+			WHERE a.regdate BETWEEN #{startdate} AND #{enddate}
+			AND a.deviceid = #{deviceid}
+			AND a.channelid IN( #{channelid_start} , #{channelid_end} )
+			GROUP BY a.regdate
+			) c
+		GROUP BY DAYOFMONTH(c.regdate)
+		ORDER BY DAYOFMONTH(c.regdate) asc
+    </select>
+    
+    <!-- H10 년별 Grid 통계 -->
+    <select id="getH10GridYearStatisticList"  parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	    SELECT * FROM(
+			SELECT  
+			a.regdate AS regdate
+			,group_concat(a.channelid SEPARATOR '|') channelid
+			,group_concat(a.avg SEPARATOR '|') avg
+			,group_concat(a.max SEPARATOR '|') max 
+			,group_concat(a.min SEPARATOR '|') min
+		FROM statisticsh10 a 
+			WHERE a.regdate BETWEEN #{startdate} AND #{enddate}
+			AND a.deviceid = #{deviceid}
+			AND a.channelid IN( #{channelid_start} , #{channelid_end} )
+			GROUP BY a.regdate
+			) c
+		GROUP BY MONTH(c.regdate)
+		ORDER BY MONTH(c.regdate) asc	
+    </select>
+    
+    
+    
+    
+    
+    
+</mapper>

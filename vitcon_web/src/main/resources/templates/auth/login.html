@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width" />
+<title>VITCON - THE HUB OF CONTROLLER</title>
+<script src="/js/jquery-2.1.4.min.js"></script>
+<script src="/js/jquery-ui-1.11.4.min.js"></script>
+<script src="/js/jquery.cookie.js"></script>
+<script src="/js/namespace.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/jquery.i18n.properties.js"></script>
+<script src="/js/language/language.js"></script>
+<script src="/js/mobile/mobile.js"></script>
+<script src="/js/auth/login.js"></script>
+<link th:if="${localecd == 'en'}" href="/css/style_en.css" rel="stylesheet" type="text/css" />
+<link th:if="${localecd == 'ja'}" href="/css/style_ja.css" rel="stylesheet" type="text/css" />
+<link th:if="${localecd == 'ko'}" href="/css/login.css" rel="stylesheet" type="text/css" /> 
+
+</head>
+<body class="login">
+<div class="wrap">
+    <div class="loginField">
+        <h1 class="loginLogo">VITCON</h1>
+        <div class="langSel">
+            <span class="selBox03">                              
+                 <select name="languageSel" id="languageSel" onchange="changeLanguage()">
+               <!--  <select name="languageSel" id="languageSel"> -->
+                    <option th:value="ko">한국어</option>
+                    <option th:value="en">English</option>
+                    <option th:value="ja">日本語</option>
+                </select>
+            </span>
+        </div>        
+        <div class="loginInputBox">
+            <fieldset>
+                <ul class="loginInputUl">
+                    <li class="loginInputId">
+                        <label for="inputId">ID</label>
+                        <input type="email" id="inputId" placeholder="vitcon@vitcon.com" onkeypress="enterkey()">
+                    </li>
+                    <li class="loginInputPw">
+                        <label for="inputPw">Password</label>
+                        <input type="password" id="inputPw" placeholder="Password" onkeypress="enterkey()">
+                    </li>
+                    <li class="loginInputSave" id="loginInputSave">
+                        <input type="checkbox" id="logSaveChk"><label for="logSaveChk"><i></i><th:block th:text="#{login.form.logsavechk}"></th:block></label>
+                    </li>
+                </ul>
+                <a th:attr="title=#{login.link}" class="btnLogin" th:text="#{login.form.btnlogin}" id='btnLogin'></a>
+                <div id="snackbar" ><th:block th:text="#{login.loading.message}"></th:block></div> <!-- 추가 2018-11-21 로그인시 토스트 메시지 -->
+            </fieldset>
+            <!--패스워트 틀림 메세지 start-->
+            <div class="loginWrong" style="display: none;" id="loginWrong"><span th:text="#{login.form.loginwrong}"></span></div>
+            <!--패스워트 틀림 메세지 end-->
+        </div>        
+        <!--데모계정,샵 추가 start-->
+        <div class="demoInfo">
+            <dl class="demoInfoList">
+				<dt><span><th:block th:text="#{vitcon.demo.account.prefix}"></th:block></span><span><th:block th:text="#{vitcon.demo.account.suffix}"></th:block></span></dt>
+                <dd>
+                    <span><em>ID :</em>demo@vitcon.co.kr</span>
+                    <span><em>PW :</em>1234567</span>
+                </dd>
+            </dl>
+        </div>
+<!--         <a href="http://www.vitconshop.com/goods/view?no=1125" target="_blank" th:attr="title=#{vitcon.shop.link}" class="shopLink">
+            <dl class="shopLinkList">
+                <dt>VITCON shop</dt>
+                <dd><th:block th:text="#{vitcon.shop.buy}"></th:block><i></i></dd>
+            </dl>
+        </a> -->
+		<!--데모계정,샵 추가 end-->        
+        <div class="otherLogin" style="display: none;">
+            <ul class="otherLoginList">            	
+                <li><div style="cursor: pointer;" th:text="#{login.naver}" onclick="document.getElementById('naver_id_login_anchor').click();"></div><div id="naver_id_login" style="display: none;"></div></li>
+                <li><div style="cursor: pointer;" th:text="#{login.kakao}" onclick="loginWithKakao()"></div><div id="kakao-login-btn" style="display:none"></div></li>
+<!-- 					<span id="name"></span><input type="button" id="loginBtn" value="checking..."> -->                 
+            </ul>
+        </div>
+        <div class="memberShip">
+            <ul class="memberList">
+                <li><a style="cursor: pointer;" id="joinLink" th:text="#{login.join}"></a></li>
+                <li><a style="cursor: pointer;" id="findIdLink" th:text="#{login.findid}"></a></li>
+                <li><a style="cursor: pointer;" id="findPasswordLink" th:text="#{login.findpasswd}"></a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+<!-- <script src="/js/portal/google_platform.js" onload="init()" async defer></script> -->
+<!-- 회원가입 처리 폼  -->
+<form method="post" action="/auth/member_join.do" name="portalform">  
+	<input type="hidden" name="portalid" id="portalid" value="">
+	<input type="hidden" name="email" id="email" value="">
+	<input type="hidden" name="name" id="name" value="">
+	<input type="hidden" name="registrationtype" id="registrationtype" value="">	
+</form>
+</body>
+<input type="hidden" id="language" name="language" th:value="${param.language}">
+<input type="hidden" id="app" name="app" th:value="${param.app}">
+</html>
+
+
+

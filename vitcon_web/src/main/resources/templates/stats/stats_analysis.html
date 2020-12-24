@@ -1,0 +1,94 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width" />
+<title>VITCON - THE HUB OF CONTROLLER</title>
+<script src="/js/jquery-2.1.4.min.js"></script>
+<script src="/js/jquery-ui-1.11.4.min.js"></script>
+<script src="/js/namespace.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/jquery.i18n.properties.js"></script>
+<script src="/js/jquery.cookie.js"></script>
+<script src="/js/language/language.js"></script>
+<script src="/js/mobile/mobile.js"></script>
+<script src="/js/stats/stats_analysis.js"></script>
+<link th:if="${localecd == 'en'}" href="/css/style_en.css" rel="stylesheet" type="text/css" />
+<link th:if="${localecd == 'ja'}" href="/css/style_ja.css" rel="stylesheet" type="text/css" />
+<link th:if="${localecd == 'ko'}" href="/css/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body class="stats stats_analysis">
+<div class="wrap">
+
+	<div th:include="fragment/header::frgHeader" class="header"></div>
+    <!-- <div class="header">
+        <h1 class="logo"><a href="/dashboard/listview.do">VITCON</a></h1>
+        <div class="mMenu"><a>모바일메뉴</a></div>
+        <div class="nav" role="navigation">
+            <ul class="navList">
+                <li><a href="/dashboard/listview.do">대시보드</a></li>
+                <li><a href="/alarm/alarm_list.do">알람내역조회</a></li>
+                <li><a href="/device/device_list.do">나의 디바이스</a>
+                    <ul class="sNavList">
+                        <li><a href="/device/device_list.do">디바이스 관리</a></li>
+                        <li><a href="/device/device_group.do">그룹 관리</a></li>
+                    </ul>
+                </li>
+                <li><a href="/past/past_list.do">과거데이터조회</a></li>
+                <li class="navOn"><a href="/stats/stats_list.do">통계</a>
+                    <ul class="sNavList">
+                        <li><a href="/stats/stats_list.do">통계</a></li>
+                        <li><a href="/stats/stats_analysis.do">문제상황분석</a></li>
+                    </ul>
+                </li>
+                <li><a href="/mypage/user.do">마이페이지</a>
+                    <ul class="sNavList">
+                        <li><a href="/mypage/user.do">계정관리</a></li>
+                        <li><a href="/mypage/setup.do">환경설정</a></li>
+                        <li><a href="/auth/logout.do">로그아웃</a></li>
+                        <li><span>서비스기한</span><em th:text="${#dates.format(session.enddate, 'yyyy-MM-dd')}"></em></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div> -->
+    <div class="contents" id="contents">
+        <h2 class="subTitle subTitleAnalysis"><th:block th:text="#{title.statis.analyze}"></th:block></h2>
+        <div class="subTitleSmall"><h3><th:block th:text="#{analyze.device.problem}"></th:block></h3></div>
+        <div class="listTable listTableAnalysis" id="listTableAnalysis_P">
+            <ul class="listTableHead" id="listTableHead">
+                <li>No</li>
+                <li><th:block th:text="#{device.name}"></th:block></li>
+                <li><th:block th:text="#{device.group.name}"></th:block></li>
+                <li><th:block th:text="#{analyze.deviceid}"></th:block></li>
+                <li><th:block th:text="#{analyze.device.updatetime}"></th:block></li>
+            </ul>
+        </div>
+        
+        
+        
+        <div class="subTitleSmall"><h3><th:block th:text="#{analyze.device.old}"></th:block></h3></div>
+        <div class="listTable listTableAnalysis" id="listTableAnalysis_O">
+            <ul class="listTableHead" id="listTableHead">
+                <li>No</li>
+                <li><th:block th:text="#{device.name}"></th:block></li>
+                <li><th:block th:text="#{device.group.name}"></th:block></li>
+                <li><th:block th:text="#{analyze.deviceid}"></th:block></li>
+                <li><th:block th:text="#{analyze.device.purchase}"></th:block></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+//moobile menu
+$(document).ready(function() {
+    $(".mMenu").click(function(){
+        $(".nav").toggleClass("mNavOn");
+        $(this).toggleClass("mMenuClose");
+    });
+});
+</script>
+</body>
+</html>

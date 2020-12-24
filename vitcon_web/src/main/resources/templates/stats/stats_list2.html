@@ -1,0 +1,192 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width" />
+<title>VITCON - THE HUB OF CONTROLLER</title>
+
+<script src="/js/jquery-2.1.4.min.js"></script>
+<script src="/js/jquery-ui-1.11.4.min.js"></script>
+<script src="/js/namespace.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/jquery.i18n.properties.js"></script>
+<script src="/js/datepicker-ko.js"></script>
+<script src="/js/datepicker-ja.js"></script>
+<script src="/js/jquery.cookie.js"></script>
+<script src="/js/language/language.js"></script>
+<script src="/js/mobile/mobile.js"></script>
+<script src="/js/stats/stats_list2.js"></script>
+<script src="/jqGrid/js/jquery.jqGrid.src.js" type="text/javascript"></script> 
+<script th:if="${localecd == 'ko'}" src="/jqGrid/js/i18n/grid.locale-kr.js" type="text/javascript"></script>
+<script th:if="${localecd == 'en'}" src="/jqGrid/js/i18n/grid.locale-en.js" type="text/javascript"></script>
+<script th:if="${localecd == 'ja'}" src="/jqGrid/js/i18n/grid.locale-ja.js" type="text/javascript"></script>
+<script th:if="${localecd == 'ko'}" src="/js/monthpicker-ko.js"></script>
+<script th:if="${localecd == 'en'}" src="/js/monthpicker-en.js"></script>
+<script th:if="${localecd == 'ja'}" src="/js/monthpicker-ja.js"></script>
+<script type="text/javascript" src="/js/highstock.js"></script>
+<script type="text/javascript" src="/js/exporting.js"></script>
+<script type="text/javascript" src="/js/export-data.js"></script>
+<script type="text/javascript" src="/js/moment.min.js"></script>
+<script type="text/javascript" src="/js/dark-unica.js"></script>
+<script type="text/javascript" src="/js/tui-code-snippet.min.js"></script>
+<script type="text/javascript" src="/js/tui-pagination.min.js"></script>
+<script type="text/javascript" src="/js/tui-grid.min.js"></script>
+<link href="/css/monthpicker.css" rel="stylesheet" type="text/css" />
+<link href="/jqGrid/css/ui.jqgrid.css" rel="stylesheet" type="text/css" />
+<link th:if="${localecd == 'en'}" href="/css/style_en.css" rel="stylesheet" type="text/css" />
+<link th:if="${localecd == 'ja'}" href="/css/style_ja.css" rel="stylesheet" type="text/css" />
+<link th:if="${localecd == 'ko'}" href="/css/style.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" type="text/css" href="/css/explain.css" />
+<link rel="stylesheet" type="text/css" href="/css/tui-grid.min.css" />
+<link rel="stylesheet" type="text/css" href="/css/tui-pagination.css" />
+
+</head>
+
+<body class="stats stats_list">
+<div class="wrap">
+<div th:include="fragment/header::frgHeader" class="header"></div>	
+    <div class="contents">
+    	<form name="downForm" id="downForm" method="post"> 
+		
+			<input type="hidden" name="down_deviceid" id="down_deviceid">
+			<input type="hidden" name="down_startdate" id="down_startdate">
+			<input type="hidden" name="down_enddate" id="down_enddate">
+			<input type="hidden" name="down_datetypecd" id="down_datetypecd">
+			<input type="hidden" name="down_devicetypecd" id="down_devicetypecd">
+			<input type="hidden" name="down_arraySize" id="down_arraySize">
+			<input type="hidden" name="down_localecode" id="down_localecode">
+			<input type="hidden" name="down_startchannelid" id="down_startchannelid">
+			<input type="hidden" name="down_endchannelid" id="down_endchannelid">
+			 
+		</form>
+		<iframe id="fileifr" width="0" height="0" style="display:none;"></iframe>
+		
+        <h2 class="subTitle subTitleStats"><th:block th:text="#{title.statis}"></th:block></h2>
+        <div class="searchTop">
+        	
+            <ul class="searchTopList">
+            
+            	<li id="deviceid_li">
+                    <label for=""><th:block th:text="#{common.devicename}"></th:block></label>
+                    <span class="selBox02">
+                        <select name="deviceName" id="deviceNameList" >
+                        	<option value=""><th:block th:text="#{statistics.devicename.select}"></th:block></option>
+                        </select>
+                    </span>
+                </li>
+
+            	<li id="dateTypeList_li">
+                    <label for=""><th:block th:text="#{statistics.type.select}"></th:block></label>
+                    <span class="selBox02">
+                        <select name="dateTypeList" id="dateTypeList">
+                        	<option value="day"><th:block th:text="#{statistics.day.type}"></th:block></option>
+                        	<option value="month"><th:block th:text="#{statistics.month.type}"></th:block></option>
+                        	<option value="year"><th:block th:text="#{statistics.year.type}"></th:block></option>
+                        </select>
+                    </span>
+                </li>
+            
+                <li id="schDay_li">
+                    <label for=""><th:block th:text="#{statistics.day.select}"></th:block></label>
+                    <div class="clearfix">
+                        <span class="selBox02_picker_statis">
+                            <input type="text" class="datepicker inpType" name="searchStartDate" id="schDay" >
+                        </span>
+                    </div>
+                </li>
+                  
+                <li id="schMonth_li">
+                	<label for=""><th:block th:text="#{statistics.month.select}"></th:block></label>
+                    <span class="selBox02">
+                    	<input type="text" id="schMonth" /> 
+                    </span>
+                </li>
+                
+                <li id="schYear_li">
+                	<label for=""><th:block th:text="#{statistics.year.select}"></th:block></label>
+                    <span class="selBox02">
+				 		<select id="schYear" name="schYear">
+						    <option value="2020">2020</option>
+						    <option value="2021">2021</option>
+						    <option value="2022">2022</option>
+						    <option value="2023">2023</option>
+						    <option value="2024">2024</option>
+						    <option value="2025">2025</option>
+						    <option value="2026">2026</option>
+						    <option value="2027">2027</option>
+						    <option value="2028">2028</option>
+						    <option value="2029">2029</option>
+						    <option value="2030">2030</option>
+				 		</select>
+                    </span>
+                </li>
+               
+                <li><a class="btnSearchTop" th:attr="title=#{statistics.dosearch}"><i></i><span><th:block th:text="#{statistics.search}"></th:block></span></a></li>
+            </ul>
+        </div>
+      
+     	<div class="loading-container2" id="loading-container">
+   	 		<div class="loading2"></div>
+   			<div id="loading-text2">LOADING</div>
+    	</div>
+     
+     	<div id="tabs" class="tabStatisDiv">
+            <ul class="tabStatis">
+                <li><a href="#tabs-1"><th:block th:text="#{statistics.link1}"></th:block></a></li>
+                <li><a href="#tabs-2"><th:block th:text="#{statistics.link2}"></th:block></a></li>
+                <li><a href="#tabs-3"><th:block th:text="#{statistics.link3}"></th:block></a></li>
+            </ul>
+            <div id="tabs-1" class="dashDetailCont">
+            	
+            	<!-- <div id="noData1" class="listNoResult"></div>
+            	<div class="noData_text"><th:block th:text="#{common.noresult}" style="display:none"></th:block></div> -->
+            	
+            	<div class="listNoResult_container" id="noData1">
+		        	<div class="listNoResult"></div>
+		        	<div class="noData_text"><th:block th:text="#{common.noresult}" style="display:none"></th:block></div>
+		        </div>
+            	
+            	<div class="chart_container" id="chart1_container"></div>
+            	
+            	<div class="grid_container" id="grid1_container">
+	            	<div class="btnDivTitleRightSmall"><a id="link1_download" class="btnDown"><i></i><th:block th:text="#{common.download}"></th:block></a></div>
+            	</div>
+            	
+            </div>
+        
+            <div id="tabs-2" class="dashDetailCont">
+
+            	<div class="listNoResult_container" id="noData2">
+		        	<div class="listNoResult"></div>
+		        	<div class="noData_text"><th:block th:text="#{common.noresult}" style="display:none"></th:block></div>
+		        </div>
+            	
+            	<div class="chart_container" id="chart2_container"></div>
+            	
+            	<div class="grid_container" id="grid2_container">
+	            	<div class="btnDivTitleRightSmall"><a id="link2_download" class="btnDown"><i></i><th:block th:text="#{common.download}"></th:block></a></div>
+            	</div>
+            	     
+            </div>
+            
+            <div id="tabs-3" class="dashDetailCont">
+            	
+            	<div class="listNoResult_container" id="noData3">
+		        	<div class="listNoResult"></div>
+		        	<div class="noData_text"><th:block th:text="#{common.noresult}" style="display:none"></th:block></div>
+		        </div>
+            	
+            	<div class="chart_container" id="chart3_container"></div>
+            	
+            	<div class="grid_container" id="grid3_container">
+	            	<div class="btnDivTitleRightSmall"><a id="link3_download" class="btnDown"><i></i><th:block th:text="#{common.download}"></th:block></a></div>
+            	</div>
+            	               
+            </div>
+            
+        </div>
+     
+    </div>
+</div>
+</body>
+</html>

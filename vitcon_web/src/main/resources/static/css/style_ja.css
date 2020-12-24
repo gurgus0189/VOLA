@@ -1,0 +1,44 @@
+@charset "utf-8";
+@import url("jquery-ui.min.css");
+@import url("basc_ja.css");
+@import url("layout.css");
+
+.navList > li > a { letter-spacing: -0.5px;}
+.demoInfoList dt { width: auto;}
+.overlay_content { padding:50px 40px 40px 40px; }
+.overlay_content_expiration { font-size:13px; }
+.overlay_content_dday { font-size:13px; }
+/* 스마트폰 */
+@media only screen and (max-device-width : 767px){
+	
+	body, div, p, ol, ul, li, img, a, h1, h2, h3, h4, h5, h6, form, span, iframe, dl, dt, dd, em { margin:0px; padding:0px; font-family:'MS Gothic',sans-serif; font-size:14px; color:#fff; letter-spacing:-0.5px;}
+	ul, ol { list-style:none; }
+	h1,h2,h3,h4,h5,h6 { font-size : 100%; font-weight: normal;}
+	table, th, td { margin:0; padding:0; font-family:'MS Gothic',sans-serif; border-collapse:collapse; border-spacing:0; color:#fff; letter-spacing:-0.5px; }
+	select, input, textarea { font:normal 14px 'MS Gothic',sans-serif; vertical-align:middle; color:#fff; letter-spacing:-0.5px; resize: none; }
+	.notice_sub_text_odd p { font-size: 10px; }
+    .navList > li > a { width: 55%; font-size: 14px; letter-spacing: -0.5px;}
+    .navList > li::before { width: 45%;}
+    .sNavList { width: 45%;}
+    .navList li:last-child .sNavList { width: 45%;}
+    .idViewTxt { width: 220%; left: -120%; top: 94px;}
+    .mNavOn .sNavList > li > a { font-size: 14px; letter-spacing: -0.5px;}
+    .listTableDevice .listTableHead li:first-child::after { content: "すべて選択";}
+    .listTableUser .listTableHead li:first-child::after { content: "すべて選択";}
+    .demoInfoList dt { width: auto;}
+    .overlay_content { padding: 30px 40px 10px 50px; }
+    .overlay_content_expiration { font-size:12px; }
+}
+    
+@media only screen and (min-device-width : 768px) and (max-device-width : 1279px) {
+	.overlay_content { padding:20px 40px 40px 60px; }
+}
+    
+/* 스마트폰 가로 */
+@media only screen and (max-device-width : 767px) and (orientation : landscape){
+    
+}
+@media only screen and (max-device-width : 321px) {
+    
+}
+

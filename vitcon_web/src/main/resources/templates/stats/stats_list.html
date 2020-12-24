@@ -1,0 +1,206 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width" />
+<title>VITCON - THE HUB OF CONTROLLER</title>
+<script src="/js/jquery-2.1.4.min.js"></script>
+<script src="/js/jquery-ui-1.11.4.min.js"></script>
+<script src="/js/namespace.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/jquery.i18n.properties.js"></script>
+<script src="/js/datepicker-ko.js"></script>
+<script src="/js/datepicker-ja.js"></script>
+<script src="/js/jquery.cookie.js"></script>
+<script src="/js/language/language.js"></script>
+<script src="/js/mobile/mobile.js"></script>
+<script src="/js/stats/stats_list.js"></script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<!-- <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/material_blue.css"> -->
+<link th:if="${localecd == 'en'}" href="/css/style_en.css" rel="stylesheet" type="text/css" />
+<link th:if="${localecd == 'ja'}" href="/css/style_ja.css" rel="stylesheet" type="text/css" />
+<link th:if="${localecd == 'ko'}" href="/css/style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body class="stats stats_list">
+<div class="wrap">
+<div th:include="fragment/header::frgHeader" class="header"></div>	
+    <div class="contents">
+    	<form name="downForm" id="downForm" method="get"> 
+			<input type="hidden" name="devicetypecd" id="devicetypecd">
+			<input type="hidden" name="startdate" id="startdate">
+			<input type="hidden" name="enddate" id="enddate">
+			<input type="hidden" name="localecode" id="localecode">
+		</form>
+		<iframe id="fileifr" width="0" height="0" style="display:none;"></iframe>
+		
+        <h2 class="subTitle subTitleStats"><th:block th:text="#{title.statis}"></th:block></h2>
+        <div class="searchTop">
+        	<!-- 2019-01-24 달력 추가  -->
+        	<ul class="searchDate">
+	            <li>
+	              <span class="chkbox2">
+	              <input type="radio" name="dateType" id="dateType1" onclick="setSearchDate('0d')"/>
+	                  <label for="dateType1" ><th:block th:text="#{picker.day}"></th:block></label>
+	              </span>
+	           </li>
+	           <li>
+	              <span class="chkbox2">
+	                  <input type="radio" name="dateType" id="dateType2" onclick="setSearchDate('1w')"/>
+	                  <label for="dateType2"><th:block th:text="#{picker.week}"></th:block></label>
+	              </span>
+	           </li>
+	           <li>
+	              <span class="chkbox2">
+	                  <input type="radio" name="dateType" id="dateType3" onclick="setSearchDate('2w')"/>
+	                  <label for="dateType3"><th:block th:text="#{picker.two.week}"></th:block></label>
+	              </span>
+	           </li>
+	           <li>
+	              <span class="chkbox2">
+	                  <input type="radio" name="dateType" id="dateType4" onclick="setSearchDate('3w')"/>
+	                  <label for="dateType4"><th:block th:text="#{picker.three.week}"></th:block></label>
+	              </span>
+	           </li>
+	           <li>
+	              <span class="chkbox2">
+	                  <input type="radio" name="dateType" id="dateType5" onclick="setSearchDate('1m')"/>
+	                  <label for="dateType5"><th:block th:text="#{picker.month_one}"></th:block></label>
+	              </span>
+	           </li>
+	            <!-- <li>
+	                <span class="chkbox2">
+	                    <input type="radio" name="dateType" id="dateType7" onclick="setSearchDate('6m')"/>
+	                    <label for="dateType7"><th:block th:text="#{picker.month_six}"></th:block></label>
+	                </span>
+	            </li> -->
+	        </ul>
+        
+            <ul class="searchTopList">
+                <li>
+                    <label for=""><th:block th:text="#{statistics.search.date}"></th:block></label>
+                    <form>
+					    <!-- search -->
+					    <table class="searchBox">
+					        <caption>조회</caption>
+					        <colgroup>
+					            <col width="123px">
+					            <col width="*">
+					        </colgroup>
+					        <tbody>
+			                    <div class="clearfix">
+			                        <!-- 시작일 -->
+			                        <span class="selBox02_picker">
+			                            <input type="text" class="datepicker inpType" name="searchStartDate" id="searchStartDate" >
+			                            <!-- <a href="#none" class="btncalendar dateclick">달력</a> -->
+			                        </span>
+			                        <!-- <span class="demi">~</span> -->
+			                        <!-- 종료일 -->
+			                        <span class="selBox02_picker">
+			                            <input type="text" class="datepicker inpType" name="searchEndDate" id="searchEndDate" >
+			                            <!-- <a href="#none" class="btncalendar dateclick">달력</a> -->
+			                        </span>
+			                    </div>
+					        <tbody>
+					    </table>
+					</form>
+                    <!-- <span class="searchBox01" id="date"></span> -->
+                </li>
+                <li>
+                    <label for=""><th:block th:text="#{statistics.search.type}"></th:block></label>
+                    <span class="selBox02">
+                        <select name="deviceTypeList" id="deviceTypeList"></select>
+                    </span>
+                </li>
+                <li><a class="btnSearchTop" th:attr="title=#{statistics.dosearch}"><i></i><span><th:block th:text="#{statistics.search}"></th:block></span></a></li>
+            </ul>
+        </div>
+        <div class="subTitleSmall">
+            <h3><th:block th:text="#{statistics.all.list}"></th:block></h3>
+            <div class="btnDivTitleRightSmall"><a id="allStatsDownload" class="btnDown"><i></i><th:block th:text="#{statistics.download}"></th:block></a></div>
+            
+        </div>
+        <div id="allStatsList" class="listTable listTableStats01">
+            <ul class="listTableHead">
+                <li><th:block th:text="#{common.class}"></th:block></li>
+                <li><th:block th:text="#{common.avg}"></th:block></li>
+                <li th:attr="title=#{common.min.explanation}"><th:block th:text="#{common.min}"></th:block></li>
+                <li th:attr="title=#{common.max.explanation}"><th:block th:text="#{common.max}"></th:block></li>
+                <li th:attr="title=#{common.maxmin.explanation}"><th:block th:text="#{common.maxmin}"></th:block></li>
+                <li th:attr="title=#{commom.std.explanation}"><th:block th:text="#{common.std}"></th:block></li>
+            </ul>
+        </div>
+        <div id="noData1" class="listNoResult"><th:block th:text="#{common.noresult}" style="display:none"></th:block></div>
+        
+        <div class="subTitleSmall">
+            <h3><th:block th:text="#{statistics.group.list}"></th:block></h3>
+            <div class="btnDivTitleRightSmall"><a id="groupStatsDownload" class="btnDown"><i></i><th:block th:text="#{statistics.download}"></th:block></a></div>
+        </div>
+        <div id="groupStatsList" class="listTable listTableStats02">
+            <ul class="listTableHead">
+                <li><th:block th:text="#{statistics.groupname}"></th:block></li>
+                <li><th:block th:text="#{common.class}"></th:block></li>
+                <li><th:block th:text="#{common.avg}"></th:block></li>
+                <li><th:block th:text="#{common.min}"></th:block></li>
+                <li><th:block th:text="#{common.max}"></th:block></li>
+                <li><th:block th:text="#{common.maxmin}"></th:block></li>
+                <li><th:block th:text="#{common.std}"></th:block></li>
+            </ul>
+        </div>
+        <div id="noData2" class="listNoResult"><th:block th:text="#{common.noresult}" style="display:none"></th:block></div>
+        
+        <div id="groupChart">
+        	<!--  
+        	<div class="subTitleSmallH4">
+	            <h4>- 평균온도</h4>
+	        </div>
+	        <div class="statsGraph">
+	            <img src="/images/temp02.png" alt="임시 그래프 이미지">
+	        </div>
+	        
+	        <div class="subTitleSmallH4">
+	            <h4>- 온도 max-min</h4>
+	        </div>
+	        <div class="statsGraph">
+	            <img src="/images/temp03.png" alt="임시 그래프 이미지">
+	        </div>
+	        -->
+        </div>
+        
+        
+        <div class="subTitleSmall">
+            <h3><th:block th:text="#{statistics.device.list}"></th:block></h3>
+            <div class="btnDivTitleRightSmall"><a id="deviceStatsDownload" class="btnDown"><i></i><th:block th:text="#{statistics.download}"></th:block></a></div>
+        </div>
+        <div id="deviceStatsList" class="listTable listTableStats03">
+            <ul class="listTableHead">
+                <li><th:block th:text="#{statistics.devicename}"></th:block></li>
+                <li><th:block th:text="#{statistics.groupname}"></th:block></li>
+                <li><th:block th:text="#{common.class}"></th:block></li>
+                <li><th:block th:text="#{common.avg}"></th:block></li>
+                <li><th:block th:text="#{common.min}"></th:block></li>
+                <li><th:block th:text="#{common.max}"></th:block></li>
+                <li><th:block th:text="#{common.maxmin}"></th:block></li>
+                <li><th:block th:text="#{common.std}"></th:block></li>
+            </ul>
+        </div>
+        <div id="noData3" class="listNoResult"><th:block th:text="#{common.noresult}" style="display:none"></th:block></div>
+        <div id="deviceChart">
+        	<!-- 
+	        <div class="subTitleSmallH4">
+	            <h4>- 평균온도</h4>
+	        </div>
+	        <div class="statsGraph">
+	            <img src="/images/temp02.png" alt="임시 그래프 이미지">
+	        </div>
+	        <div class="subTitleSmallH4">
+	            <h4>- 온도 max-min</h4>
+	        </div>
+	         -->
+        </div>
+    </div>
+</div>
+</body>
+</html>

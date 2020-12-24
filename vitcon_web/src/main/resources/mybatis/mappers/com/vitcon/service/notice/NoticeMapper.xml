@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+     PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+     
+<mapper namespace="com.vitcon.service.notice.NoticeMapper">
+
+	<resultMap type="com.vitcon.service.notice.NoticeVO" id="noticeVOMap">
+       <result column="classification" property="classification"></result>
+       <result column="noticecontent" property="noticecontent"></result>
+       <result column="regdate" property="regdate"></result> 
+    </resultMap>
+
+
+    <!-- <select id="getSelectNotice" parameterType="com.vitcon.service.notice.NoticeVO" resultType="com.vitcon.service.notice.NoticeVO"> --> 
+    <select id="getSelectNotice" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+     	SELECT SQL_CALC_FOUND_ROWS 
+     		seqno,
+     		classification,
+     		noticetitle,
+     		<!-- noticecontent, -->
+     		regdate 
+     	FROM notice 
+     	WHERE localecd = #{localecd}
+     	ORDER BY seqno desc
+     	limit #{page}, #{perPage}
+    </select>
+   
+   <!-- <select id="getSelectDetailNotice" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+     	SELECT SQL_CALC_FOUND_ROWS 
+     		seqno,
+     		classification,
+     		noticetitle,
+     		noticecontent,
+     		regdate 
+     	FROM notice 
+     	WHERE seqno = #{seqno}
+    </select> -->
+   
+   <select id="getSelectNoticeContent" parameterType="com.vitcon.service.notice.NoticeVO" resultType="com.vitcon.service.notice.NoticeVO">
+     	SELECT SQL_CALC_FOUND_ROWS 
+     		seqno,
+     		classification,
+     		noticetitle,
+     		noticecontent,
+     		regdate
+     	FROM notice WHERE seqno = #{seqno} 
+    </select>
+   
+    <!-- <delete id="deleteNotice" parameterType="com.vitcon.service.notice.NoticeVO">
+	   	DELETE
+	    	 FROM notice
+	   	WHERE classification = #{classification}
+	</delete>-->
+    
+    <!-- grid 업데이트 --> 
+    <!-- <update id="updateNotice" parameterType="String">
+      	UPDATE notice SET 
+      		classification = #{classification} 
+    </update>
+     
+     
+     <select id="getSelectNoticeExcelAll" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+     	SELECT SQL_CALC_FOUND_ROWS 
+     		seqno,
+     		classification,
+     		noticetitle,
+     		noticecontent,
+     		regdate 
+     	FROM notice 
+     	
+    </select> -->
+     
+     
+     
+     
+     <!--<insert id="insertNotice" parameterType="com.vitcon.service.notice.NoticeVO">
+     	INSERT INTO notice (classification
+                        , noticecontent
+                        , regdate )
+              values (#{classification}
+                     , #{noticecontent}
+                     , #{regdate} )
+     </insert>  -->
+     
+     
+     
+     
+     
+     
+     
+</mapper>
+
+

@@ -1,0 +1,199 @@
+
+.irs-line-mid,
+.irs-line-left,
+.irs-line-right,
+.irs-bar,
+.irs-bar-edge,
+.irs-slider {
+      background: url(../images/sprite-skin-flat.png) repeat-x;  
+    
+}
+
+.irs {
+    height: 40px;
+    margin-top: 105px;
+}
+.irs-with-grid {
+    height: 60px;
+}
+.irs-line {
+	width: 86%;
+    height: 14px; top: 35px;
+    margin: 0 auto;
+}
+    .irs-line-left {
+    	/* margin-left:8px; */
+        height: 14px;
+        background-position: 0 -30px;
+    }
+    .irs-line-mid {
+        height: 14px;
+        background-position: 0 0;
+    }
+    .irs-line-right {
+    	/* margin-right:8px; */
+        height: 14px;
+        background-position: 100% -30px;
+    }
+
+.irs-bar {
+    height: 14px; 
+    top: 35px;
+	border-radius: 10px;
+    background-position: 0 -60px;
+}
+    .irs-bar-edge {
+        top: 25px;
+        height: 14px; width: 9px;
+        background-position: 0 -90px;
+    }
+
+.irs-shadow {
+    height: 3px; top: 34px;
+    background: #000;
+    opacity: 0.25;
+}
+.lt-ie9 .irs-shadow {
+    filter: alpha(opacity=25);
+}
+
+.irs-slider {
+    width: 50px; 
+    height: 50px;
+    top: 16px;
+    background-position: 0 -120px;
+}
+
+.irs-slider.state_hover, .irs-slider:hover {
+    background-position: 0 -150px;
+}
+.irs-slider.from.state_hover:hover {
+    background: #D5D5D5;
+}
+.irs-slider.to.state_hover:hover {
+    background: #D5D5D5;
+}
+.irs-min, .irs-max {
+    color: #999;
+    font-size: 10px;
+    font-weight: bold;
+     line-height: 1.333;
+    text-shadow: none;
+    top: 20px; padding: 1px 3px;
+    background: #e1e4e9;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    margin-top: 50px;
+}
+.irs-from, .irs-to, .irs-single {
+    color: #fff;
+    font-size: 12px; 
+    font-weight: bold;
+    line-height: 1.333;
+    text-shadow: none;
+    padding: 1px 5px;
+    margin-top: 70px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #0086cf 40%, #001da6 60%);
+} 
+/* .irs-from, .irs-to, .irs-single {
+    color: #fff;
+    font-size: 12px; 
+    text-shadow: none;
+    padding: 10px 5px;
+    background: linear-gradient(90deg, #0086cf 40%, #001da6 60%);
+    -moz-border-radius: 4px;
+    word-break: break-word;
+	margin-top: 50px;
+	border-radius: 25px;
+	text-align: center;
+	font-weight: bold;
+
+} */
+.irs .irs-from {
+	background: #0086cf;
+}
+
+
+.irs .irs-to {
+	background: #001da6;
+}
+/*
+.irs .irs-from:hover {
+	width:72px;
+	height:42px;
+	background: #336633;
+}
+.irs .irs-to:hover {
+	box-shadow: 2px 2px 5px #aaaaaa;
+	background: #045562;
+} */
+
+.irs-from:after, .irs-single:after {
+    position: absolute; display: block; content: "";
+    top: -8.5px; left: 50%;
+    width: 5px; height: 5px;
+    margin-left: -5px;
+    overflow: hidden;
+    border: 5px solid transparent;
+    border-bottom-color: #0086cf;
+}
+.irs-to:after, .irs-single:after {
+	position: absolute; display: block; content: "";
+    top: -8.5px; left: 50%;
+    width: 5px; height: 10px;
+    margin-left: -5px;
+    overflow: hidden;
+    border: 5px solid transparent;
+    border-bottom-color: #001da6;
+}
+
+.irs-grid-pol {
+	margin-top : -30px;
+    background: #e1e4e9;
+}
+.irs-grid-text {
+    color: #999;
+    top : -43px;
+    font-size: 15px;
+}
+
+.irs-disabled {
+}
+
+.range-slider {
+    margin-top: 20px;
+    height: 80px;
+}
+.extra-controls {
+   	/* margin-top: 30px;
+    border-top: 3px solid #5299d2; */
+    padding: 10px 0 0;
+}
+
+.inp {
+    font-size: 15px;
+    width: 40px;
+    text-align: center;
+    padding: 5px;
+}
+.inp + .inp {
+    float: right;
+}
+.inputContainer {
+	margin-bottom: 70px;
+}
+.min_inputbox {
+	width: 43%;
+	height: 36px;
+	color: #000;
+	float:left;
+}
+.max_inputbox {
+	width: 43%;
+	height: 36px;
+	color: #000;
+	float:left;
+	
+}

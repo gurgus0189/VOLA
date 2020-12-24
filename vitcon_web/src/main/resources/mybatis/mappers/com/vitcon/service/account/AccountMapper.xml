@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+     PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.vitcon.service.account.AccountMapper">
+<!-- 
+	<resultMap type="com.vitcon.service.user.UserVO" id="UserVOMap">
+		<result column="userid" property="userid"/>		
+		<result column="username" property="username"/>
+		<result column="passwd" property="passwd"/>
+		<result column="grade" property="grade"/>
+		<result column="puserid" property="puserid"/>
+		<result column="startdate" property="startdate"/>
+		<result column="enddate" property="enddate"/>				
+		<result column="mobile" property="mobile"/>
+		<result column="pushyn" property="pushyn"/>	
+		<result column="localecd" property="localecd"/>	
+		<result column="portalid" property="portalid"/>	
+		<result column="registrationtype" property="registrationtype"/>			
+	</resultMap>
+ -->
+ 
+    <resultMap type="java.util.HashMap" id="AccountListMap">
+    	<result column="userid" property="userid"/>
+    	<result column="username" property="username"/>
+    	<result column="passwd" property="passwd"/>
+    	<result column="grade" property="grade"/>
+    	<result column="localecd" property="localecd"/>
+    	<result column="portalid" property="portalid"/>
+    	<result column="organization" property="organization"/>
+    	<result column="countnum" property="countNum" javaType="java.lang.Integer" />
+	</resultMap>
+
+	<!-- 사용자 정보 가져오기 -->
+	<select id="getUser" parameterType="com.vitcon.service.user.UserVO" resultType="com.vitcon.service.user.UserVO">
+		SELECT *
+	      FROM user a
+		<where> 
+		<if test = "userid != null">
+	      a.userid = #{userid}
+	    </if>
+	    <if test = "username != null">
+	      AND a.username = #{username}
+	    </if>
+   	    <if test = "passwd != null">
+	      AND a.passwd = #{passwd}
+	    </if>
+   	    <if test = "grade != null">
+	      AND a.grade = #{grade}
+	    </if>
+   	    <if test = "puserid != null">
+	      AND a.puserid = #{puserid}
+	    </if>
+	    <if test = "startdate != null">
+	      AND a.startdate = #{startdate}
+	    </if>
+	    <if test = "startdate != null">
+	      AND a.startdate = #{startdate}
+	    </if>	    
+	    <if test = "enddate != null">
+	      AND a.enddate = #{enddate}
+	    </if>
+		<if test = "mobile != null">
+	      AND a.mobile = #{mobile}
+	    </if>
+		<if test = "pushyn != null">
+	      AND a.pushyn = #{pushyn}
+	    </if>
+		<if test = "localecd != null">
+	      AND a.localecd = #{localecd}
+	    </if>	    
+		<if test="portalid != null">
+	      AND a.portalid = #{portalid}
+	    </if>	    
+		<if test="registrationtype != null">
+	      AND a.registrationtype = #{registrationtype}
+	    </if>	    
+		</where>
+	</select>
+		
+	<!-- 계정관리 사용자 정보 가져오기 -->
+	<select id="getAccountList" resultMap="AccountListMap">
+		SELECT userid, username, grade, mobile, localecd, portalid, organization 
+ 		,(
+ 			SELECT COUNT(a.deviceid) 
+ 		      FROM device c, userdevice a 
+ 		    WHERE  a.deviceid = c.deviceid
+ 		        AND  u.userid = a.userid
+ 		 ) AS countNum
+ 		  FROM user u 
+ 		WHERE puserid = #{puserid}
+	</select>
+		
+	<!-- 아이디 추가 -->
+	<insert id="insertUser" parameterType="com.vitcon.service.user.UserVO">
+		INSERT 
+		  INTO user (userid
+		            ,username
+		            <if test = "passwd != null">
+		            ,passwd
+		            </if>
+		  			,grade
+		  			<if test="puserid != null">
+		  			,puserid
+		  			</if>
+		  			<if test="organization != null">
+		  			,organization
+		  			</if>
+		  			,startdate
+		  			,enddate
+		  			,mobile
+		  			,pushyn
+		  			,localecd
+		  			<if test="portalid != null">		  			
+		  			,portalid
+		  			</if>
+		  			<if test="registrationtype != null">
+		  			,registrationtype
+		  			</if>
+		            )
+		 VALUES (#{userid}
+		        ,#{username}
+	            <if test = "passwd != null">		        
+		        ,#{passwd}
+		        </if>
+		        ,#{grade}
+	  			<if test="puserid != null">
+		        ,#{puserid}
+	  			</if>
+	  			<if test="organization != null">
+		        ,#{organization}
+	  			</if>
+		        ,#{startdate}
+		        ,#{enddate}
+		        ,#{mobile}
+		        ,#{pushyn}
+		        ,#{localecd}
+		  		<if test="portalid != null">
+		        ,#{portalid}
+		        </if>
+		        <if test="registrationtype != null">
+		        ,#{registrationtype}
+		        </if>
+		        ) 
+
+    </insert>
+
+ 	<!-- 사용자 정보 업데이트 -->
+    <update id = "updateUser" parameterType = "com.vitcon.service.user.UserVO">
+		UPDATE user
+		   <set> 
+		     <if test = "username != null">
+		       username = #{username},
+			 </if>
+		     <if test = "passwd != null">
+	           passwd = #{passwd},
+	         </if>
+		     <if test = "grade != null">
+	           grade = #{grade},
+	         </if>
+	         <if test = "startdate != null">
+	           startdate = #{startdate},
+			 </if>
+		     <if test = "enddate != null">
+	           enddate = #{enddate},
+	         </if>
+		     <if test = "mobile != null">
+	           mobile = #{mobile},
+	         </if>
+		     <if test = "pushyn != null">
+	           pushyn = #{pushyn},
+	         </if>
+	         <if test = "pushsysyn != null">
+	           pushsysyn = #{pushsysyn},
+	         </if>
+		     <if test = "localecd != null">
+	           localecd = #{localecd}
+	         </if>
+		     <if test = "organization != null">
+	           organization = #{organization}
+	         </if>
+	       </set>
+	     WHERE userid = #{userid}
+    </update>
+
+ 	<!-- 아이디 삭제 -->
+    <delete id="deleteUser" parameterType = "java.util.HashMap">
+    	DELETE
+    	  FROM user
+    	<where>  
+	     userid IN
+		 <foreach collection = "userid" item = "item" open = "(" close=")" separator = ",">
+		     #{item}
+		 </foreach>
+		 </where>
+    </delete>
+    
+   	<!-- 구매자 삭제 기능 : 구매자 제외 아이디 삭제 -->
+    <delete id="deleteMiddleUser" parameterType = "com.vitcon.service.user.UserVO">
+    	DELETE
+    	  FROM user
+    	 WHERE puserid = #{userid}
+    </delete>
+    
+    <!-- 회원탈퇴시 등록된 디바이스 체크  -->
+    <select id="deviceidCheck" parameterType="String" resultType="Integer">
+		SELECT count(a.deviceid) as devicecount
+			FROM device a
+		WHERE a.userid = #{userid}
+	</select>
+    
+    <!-- 회원탈퇴시 등록된 하위계정 체크 -->
+    <select id="subAccountCheck" parameterType="String" resultType="Integer">
+		SELECT count(a.userid) as useridcount 
+			FROM user a 
+		WHERE a.puserid = #{userid}
+	</select>
+    
+    <delete id="useridDelete" parameterType="String">
+	   	DELETE FROM user
+	   	WHERE userid = #{userid}
+	</delete> 
+    
+    <delete id="userappDelete" parameterType="String">
+	   	DELETE FROM userapp
+	   	WHERE userid = #{userid}
+	</delete> 
+    
+    <delete id="devicegroupDelete" parameterType="String">
+	   	DELETE FROM devicegroup
+	   	WHERE userid = #{userid}
+	</delete> 
+    
+    <insert id="insertUseridDelete" parameterType="com.vitcon.service.user.UserDeleteVO">
+     	INSERT INTO userDelete (userid,regdate) 
+     					  values(#{userid},#{regdate})
+    </insert>
+    
+    
+</mapper>

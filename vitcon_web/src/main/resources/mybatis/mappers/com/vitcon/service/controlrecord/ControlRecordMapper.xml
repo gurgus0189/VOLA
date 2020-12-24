@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+     PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.vitcon.service.controlrecord.ControlRecordMapper">
+
+	<!-- 제어 이력 조회 -->
+	<select id="getControlRecord" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT b.deviceid 
+			  ,b.devicename
+		      ,b.devicetypecd
+	      	  ,DATE_FORMAT(a.regdate, "%Y-%m-%d") AS regdate
+              ,DATE_FORMAT(a.regdate, "%H:%i:%S") AS regdateTime
+	      	  ,a.data
+		      ,d.groupname
+		      ,b.groupid
+		      ,b.devicename
+		      ,b.devicetypecd
+	      FROM devicecontrol a
+		      ,device b
+	          ,(
+		       SELECT ifnull(puserid, userid) as userid
+		         FROM user
+		        WHERE userid = #{userid}
+	           ) c
+	          ,devicegroup d
+	      WHERE a.deviceid = b.deviceid
+	    <![CDATA[
+	       AND (a.regdate >= #{regdatestart} AND a.regdate < #{regdateend})	       
+		]]>
+	       <if test="groupid != null and !groupid.equals('')">
+	       	AND b.groupid = #{groupid}
+	       </if>
+	       <if test="devicetypecd != null and !devicetypecd.equals('')">
+	       	AND b.devicetypecd = #{devicetypecd}
+	       </if>
+	       AND b.userid = c.userid
+	       AND b.groupid = d.groupid
+	       ORDER BY a.regdate DESC
+	</select>
+
+</mapper>

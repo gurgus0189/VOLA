@@ -1,0 +1,54 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width" />
+<title>VITCON - THE HUB OF CONTROLLER</title>
+<script src="/js/jquery-2.1.4.min.js"></script>
+<script src="/js/jquery-ui-1.11.4.min.js"></script>
+<script src="/js/namespace.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/jquery.i18n.properties.js"></script>
+<script src="/js/jquery.cookie.js"></script>
+<script src="/js/language/language.js"></script>
+<script src="/js/mobile/mobile.js"></script>
+<script src="/js/auth/member_pw.js"></script>
+<link th:if="${localecd == 'en'}" href="/css/style_en.css" rel="stylesheet" type="text/css" />
+<link th:if="${localecd == 'ja'}" href="/css/style_ja.css" rel="stylesheet" type="text/css" />
+<link th:if="${localecd == 'ko'}" href="/css/login.css" rel="stylesheet" type="text/css" /> 
+</head>
+<body class="member member_pw">
+<div class="wrap">
+    <div class="joinField">
+       <h2 class="memberTitle memberIdTitle"><i></i><span><th:block th:text="#{login.findpasswd}"></th:block></span></h2>
+        <div class="loginInputBox">
+            <fieldset>
+                <ul class="loginInputUl">
+                    <li class="joinInputTop">
+                        <label for="inputId"><th:block th:text="#{common.id}"></th:block></label>
+                        <input type="text" id="inputId" placeholder="" value="" onkeyup ="enterkey()">
+                    </li>
+                </ul>
+                <div class="memberInfo"><span><th:block th:text="#{login.findpw.memberinfo}"></th:block></span></div>
+                <!-- <div class="memberInfoOther"><th:block th:text="#{login.findpw.tip}"></th:block></div> -->                
+                <div class="btnJoinCenter">
+                    <a class="btnPopNormal" id="btnPopNormal"><th:block th:text="#{common.cancel}"></th:block><i></i></a>
+                    <a class="btnPopConfirm" id="btnPopConfirm"><th:block th:text="#{login.findpasswdresult}"></th:block><i></i></a>
+                </div>
+            </fieldset>
+            <!--메세지 start-->
+            <div class="loginWrong" id="loginWrong" style="display: none "><span><th:block th:text="#{login.find.noaccount}"></th:block></span></div>
+            <div class="loginResult" id="loginResult" style="display: none "><span><em></em></span></div>
+            <!--메세지 end-->
+        </div>
+        <div class="memberShip">
+            <ul class="memberList">
+                <li><a name="loginLink" id="loginLink"><th:block th:text="#{login.link}"></th:block></a></li>
+                <li><a name="joinLink" id="joinLink"><th:block th:text="#{login.join}"></th:block></a></li>
+                <li><a name="findIdLink" id="findIdLink"><th:block th:text="#{login.findid}"></th:block></a></li>             
+            </ul>
+        </div>
+    </div>
+</div>
+</body>
+</html>

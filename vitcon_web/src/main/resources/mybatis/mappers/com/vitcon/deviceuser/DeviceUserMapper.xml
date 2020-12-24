@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+     PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+     "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="com.vitcon.service.deviceuser.DeviceUserMapper">
+
+	<select id="getUserApp" parameterType="java.util.HashMap" resultType="com.vitcon.service.device.UserAppVO">
+      SELECT SQL_CALC_FOUND_ROWS 
+              DATE_FORMAT(a.regdate, "%Y-%m-%d\n%H:%i:%S") AS regdate
+              , a.appid, a.modelname, a.appversion, a.osversion, a.userid, a.apptype
+      FROM userapp a
+      WHERE 
+      a.userid = #{userid}
+      ORDER BY a.regdate desc
+      limit #{page}, #{perPage}
+   </select>
+
+	<delete id="deleteDeviceChannelRange" parameterType="java.util.HashMap">
+       DELETE 
+         FROM devicechannelrange
+        WHERE deviceid IN
+        <foreach collection="deviceid" item="item"  open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+	</delete>
+	<delete id="deleteUserApp" parameterType="com.vitcon.service.device.UserAppVO">
+	   DELETE 
+         FROM userapp WHERE userid = #{userid}
+    </delete>
+	
+	<delete id="deleteUserDevice" parameterType="java.util.HashMap">
+       DELETE 
+         FROM userdevice
+        WHERE userid IN
+        <foreach collection="userid" item="item"  open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+	</delete>
+	<!-- 디바이스 아이디로도지울수 있음  -->
+	<delete id="deleteDevice" parameterType="com.vitcon.service.device.DeviceVO">
+       DELETE 
+         FROM device
+        WHERE userid = #{userid}
+	</delete>
+	
+	<delete id="deleteDeviceGroup" parameterType="com.vitcon.service.device.DeviceGroupVO">
+       DELETE 
+         FROM devicegroup
+        WHERE userid = #{userid}
+	</delete>
+	
+	<select id="selectUser" resultType="com.vitcon.service.user.UserVO" parameterType="com.vitcon.service.user.UserVO">
+	   SELECT userid 
+	    FROM user 
+	   WHERE puserid= #{puserid}
+	</select>
+
+	<select id="selectDeviceUser" resultType="java.util.HashMap" parameterType="String">
+	   SELECT b.userid
+	          ,a.puserid
+	   		  ,b.deviceid
+              ,b.devicename
+              ,c.groupid
+              ,c.groupname
+	     FROM (
+	             SELECT ifnull(puserid, userid) as userid
+	                    ,puserid 
+	   	        FROM user
+	   	       WHERE userid = #{userid}
+	   	      ) a
+	          ,device b
+	          ,devicegroup c
+           WHERE b.userid = a.userid
+           AND c.userid = a.userid
+	</select>
+	
+	<select id="selectUserDevice" resultType="com.vitcon.service.device.UserDeviceVO" parameterType="com.vitcon.service.device.UserDeviceVO">
+	   SELECT * 
+	     FROM userdevice 
+	    <where>
+	    	<if test="userid != null">
+	    	 userid = #{userid}
+	    	</if>
+	    	<if test="groupid != null">
+	    	 groupid = #{userid}
+	    	</if>
+	    </where> 
+	</select>
+	
+	<!-- 중간 관리자 삭제시 사용됨  -->
+	<insert id="insertUserDevice" parameterType="com.vitcon.service.device.UserDeviceVO">
+	   INSERT INTO userdevice (userid
+	                           ,deviceid)
+	        VALUES (#{userid}
+	                ,#{deviceid})
+	</insert>
+	
+	 <delete id="deleteUserDeviceByWhere" parameterType="com.vitcon.service.device.UserDeviceVO">
+	   DELETE 
+	     FROM userdevice
+	     <where>
+	     	<if test="userid != null">
+	     	 userid = #{userid}
+	     	</if>
+	     	<if test="deviceid != null">
+	     	 AND deviceid = #{deviceid}
+	     	</if>
+	     </where>
+	</delete> 
+	
+	<!--  종욱씨 센서관리 - 중간관리자 id 필요    -->
+	<select id="getDeviceListByMiddleId" parameterType="java.util.HashMap" resultType="java.util.HashMap">    
+       SELECT c.devicetypecd
+              ,c.devicetypename 
+              ,d.groupname 
+              ,d.groupid
+              ,b.deviceid 
+              ,b.devicename
+              ,d.defaultyn 
+              ,DATE_FORMAT(b.createdate, "%Y-%m-%d") AS createdate
+              ,(select userid from userdevice k where userid = #{middleid} and k.deviceid = b.deviceid) as subuser
+        FROM (
+             SELECT ifnull(puserid, userid) as userid 
+               FROM user
+              WHERE userid = #{userid}
+             ) a
+             ,device b
+             ,devicetype c
+             ,devicegroup d
+       WHERE b.userid = a.userid
+         AND b.devicetypecd = c.devicetypecd
+         AND b.groupid = d.groupid
+         <if test="devicetypecd != null and !devicetypecd.equals('')">
+         	AND b.devicetypecd = #{devicetypecd}
+         </if>
+         <if test="groupid != null and !groupid.equals('')">
+         	AND d.groupid = #{groupid}
+         </if>
+         ORDER BY d.groupid asc , b.deviceid asc
+    </select>
+	
+</mapper>     

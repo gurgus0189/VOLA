@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+     PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.vitcon.service.device.manual.DeviceManualMapper">
+	<select id="list" resultType="java.util.HashMap">
+	   SELECT dvctg.categorycd
+             ,dvctg.categoryname
+             ,dvct.devicetypename
+             ,dvct.devicetypenameble
+             ,dvct.devicetypecd
+        FROM devicecategory AS dvctg
+        JOIN devicetype AS dvct
+          ON dvctg.categorycd = dvct.categorycd
+        JOIN deviceicon AS dvci
+          ON dvct.deviceiconid=dvci.deviceiconid 
+    ORDER BY dvctg.categorycd 
+	</select>
+	
+	<select id="manuallist" parameterType="com.vitcon.service.device.DeviceManualVO" resultType="com.vitcon.service.device.DeviceManualVO">
+	   SELECT * 
+	     FROM devicemanual
+	    WHERE devicetypecd = #{devicetypecd} 
+	</select> 
+</mapper>

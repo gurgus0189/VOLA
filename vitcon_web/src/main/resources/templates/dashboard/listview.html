@@ -1,0 +1,1872 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width" />
+
+<title>VITCON - THE HUB OF CONTROLLER</title>
+
+<link rel="stylesheet" href="/css/bootstrap.min.css" />
+<script src="/js/jquery-2.1.4.min.js"></script>
+<script src="/js/jquery-ui-1.11.4.min.js"></script>
+<script src="/js/namespace.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/jquery.i18n.properties.js"></script>
+<script src="/js/jquery.cookie.js"></script>
+<script src="/js/language/language.js"></script>
+<script src="/js/mobile/mobile.js"></script>
+<script src="/js/jquery.mobile-1.4.5.min.js"></script>
+<script src="/js/circle-progress.min.js"></script>
+<link href="/css/jquery.mobile-1.4.5.css" rel="stylesheet">
+<link th:if="${localecd == 'en'}" href="/css/style_en.css" rel="stylesheet" type="text/css" />
+<link th:if="${localecd == 'ja'}" href="/css/style_ja.css" rel="stylesheet" type="text/css" />
+<link th:if="${localecd == 'ko'}" href="/css/style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript">
+ns("common") ;
+var respParser = common.ajax.responseParser;
+
+var deviceids = [];
+var groupids = [];
+var groupnames = [];
+var devicetypecds = [];
+var grouphash = [];
+
+var grade = "[[${grade}]]";
+var overlayFlag = false;
+
+var timer;
+var notice_flag = true;
+var notice_count = 0;
+var height;
+var num;
+var max;
+var move;
+
+function getDeviceGroupHtml(groupname, groupid) {
+	var ret = "";
+	var idDashGroup = "dashGroup_" + groupid;
+	var idDashDeviceGroup = "dashDeviceGroup_" + groupid;
+	ret  = "\n<div class=\"dashGroup\" id='" + idDashGroup + "'>";
+	ret += "\n	<h2 class=\"dashGroupName\">" + groupname + "</h2>";
+	ret += "\n	<div class=\"dashDeviceGroup\" id='" + idDashDeviceGroup + "'>";
+	ret += "\n	</div>";
+	ret += "\n</div>";
+	
+	return ret;
+}
+
+// 모든 디바이스 그룹 숨기기
+function hideGroupAll() {	
+	$('[id^=dashGroup_]').each(function() {		
+		$(this).hide();	
+	});
+}
+
+// 모든 디바이스 그룹 보이기
+function showGroupAll() {
+	$('[id^=dashGroup_]').each(function() {		
+		$(this).show();	
+	});
+}
+
+// 모든 디바이스 그룹 삭제
+function removeGroupAll() {
+	$('[id^=dashGroup_]').each(function() {		
+		$(this).remove();	
+	});
+}
+
+// 모든 검색 삭제
+function removeSelectGroupAll() {
+	$('#selectGroup').find('option:not(:first)').remove();	
+}
+
+// 모든 그룹을 숨기고, 선택된 그룹만 표시
+function changeGroup() {
+	var groupid = $("#selectGroup").val();
+	
+	if (groupid == "") {
+		showGroupAll();
+		return;
+	}
+	
+	hideGroupAll();
+	$("#dashGroup_" + groupid).show();	
+}
+
+function makeDevice(groupid, obj) {
+	if (obj == null || obj == undefined)
+		return;
+	var deviceHtml = makeDeviceHtml(obj);
+	var idDashDeviceGroup = "#dashDeviceGroup_" + groupid;
+	$(idDashDeviceGroup).append(deviceHtml);	
+}
+
+function makeDeviceGroup(groupname, groupid) {
+	var idDashGroup = "#dashGroup_" + groupid;
+	
+	if ($(idDashGroup).length > 0) {
+		//대쉬 그룹존재 
+		return;
+	}
+	
+	var groupHtml = getDeviceGroupHtml(groupname, groupid);
+	$("#dashCont").append(groupHtml);
+	
+	var option = "<option value=\"" + groupid + "\">" + groupname  + "</option>";	
+	$("#selectGroup").append(option);
+	
+	if (grouphash[groupid] != 'undefined')
+		delete grouphash[groupid];
+}
+
+/* function makeDeviceHtml(obj) {	
+	// 임시로 선언
+	
+	var iconPath = obj.deviceiconpath;
+	var temp =  $.i18n.prop('common.temp');
+	var iconName = temp; //다국어로 변경해야 함
+	var deviceName = obj.devicename;
+	var deviceUpdateTime = '시간'; //redis
+ 	var channelid = "channel_" + obj.deviceid;
+	var devicetimeid = "time_" + obj.deviceid;
+	var firmwareid = "firmware_" + obj.deviceid;
+	var html = "";
+	var idwifi = "wifi_" + obj.deviceid;
+	var idalarm = "alarm_" + obj.deviceid;
+	var idpush = "push_" + obj.deviceid;
+	var idalarm_btn = "alarm_btn_" + obj.deviceid;
+	var idtext = "dday_text_" + obj.deviceid;
+	var iddday = "dday_" + obj.deviceid;
+	var idexpirationalarm = "expiration_alarm_" + obj.deviceid;
+	var idddayalarm = "dday_alarm_" + obj.deviceid;
+	var idoverlay = "overlay_" + obj.deviceid;
+	var idrenew_btn = "renew_btn_" + obj.deviceid;
+	var idconfirm_btn = "confirm_btn_" + obj.deviceid;
+	var sensorSetting = $.i18n.prop('device.setting');
+	
+	var overlay_flag = "overlay_flag_" + obj.deviceid;
+	var overlay_flag_val = false;
+	
+	var idalarmcodedevicename = "dashDeviceName_"+obj.deviceid;
+	var url = "/dashboard/listviewdetail.do?menu_listview=1"
+			  + "&deviceid=" + obj.deviceid
+			  + "&iconpath=" + obj.deviceiconpath;
+	
+	var alarmListUrl = "/alarm/alarm_list.do?menu_cont=1"
+		+ "&group=" + obj.groupid
+		+ "&type=" + obj.devicetypecd
+		+ "&deviceid=" + obj.deviceid;
+	
+	html += "\n<div class=\"dashDevice\">";
+	html += "\n	<div class=\"dashDeviceL\">";
+	html += "\n		<ul class=\"dashDeviceLBox\">";
+	html += "\n			<li><span id=\"" + idwifi + "\" class=\"icoWifi\" title=\"\"></span></li>";
+	html += "\n         <li><span id=\"" + idpush + "\" class=\"icoPush\" title=\"\"></span></li>";
+	html += "\n			<li><a href=\"" + alarmListUrl + "\" rel=\"external\" id=\"" + idalarm_btn + "\" class=\"alarm_btn\" onClick=\"alarm_click('" +obj.deviceid+ "');\"><span id=\"" + idalarm + "\" class=\"icoAlarm\" title=\"\"></span></a></li>";
+	html += "\n			<li><span id=\""+ idalarmcodedevicename +"\" class=\"dashDeviceName\">" + deviceName + "</span></li>";
+	
+	if (grade < 21) {
+		html += "\n	<a class=\"btnDetailSet mainPosi\" onclick=\"showControlLayer('" + obj.deviceid + "','" + obj.groupid + "','" + obj.groupname + "','" + obj.devicetypecd + "');\" title=\""+ sensorSetting +"\">"+ sensorSetting +"</a>";
+	}
+	html += "\n			<li><span class=\"" + iconPath + "\">" + iconName + "</span></li>";
+	
+	
+	
+	html += "\n			<li><span class=\"firmware_text\" id=\"" + firmwareid + "\">"+obj.devicetypename+"</span></li>";
+	
+	
+	
+	html += "\n			<li><span class=\"type_text\">"+obj.devicetypename+"</span></li>";
+	html += "\n			<li><time class=\"dashTimeMain\" id=\"" + devicetimeid + "\"></time></li>";
+	html += "\n		</ul>";
+	html += "\n	</div>";
+	html += "\n	<div class=\"dashDeviceR\">";
+	
+	var showDetails =  $.i18n.prop('listview.detail');
+	
+	html += "\n		<a href=\"" + url + "\" title=\""+ showDetails +"\" class=\"goDashDetail\" rel=\"external\">"; //jquery mobile 관련 rel=\"external\" 추가
+	html += "\n			<ul class=\"dashTempList\" id=\"" + channelid + "\"></ul>";
+	html += "\n		</a>";
+	html += "\n		<a onClick=\"dday_alarm_click('" + obj.deviceid + "');\">";
+	html += "\n			<ul class=\"dash_dday\">"
+	html += "\n				<li class=\"dday_text\" id=\"" + idtext + "\">"+ $.i18n.prop('dashboard.effective.date') + "</li>"		
+	html += "\n  			<li class=\"dday_time\" id=\"" + iddday + "\"></li>";			
+	html += "\n			</ul>";
+	html += "\n	    </a>";
+	html += "\n	</div>";
+
+	html += "\n <div class=\"overlay\" id=\"" + idoverlay + "\" value=\"" + overlay_flag_val + "\">";
+	html += "\n <div class=\"overlay_container\">";
+	html += "\n <div class=\"overlay_title\">"+ $.i18n.prop('dashboard.notice') +"</div>";
+	html += "\n <div class=\"overlay_content\">";
+	html += "\n <div class=\"overlay_content_expiration\" id=\"" + idexpirationalarm + "\"></div>";
+	html += "\n <div class=\"overlay_content_dday\" id=\"" + idddayalarm + "\"></div>";
+	html += "\n </div>";
+	html += "\n <div class=\"expiration_renew_button\" id=\"" + idrenew_btn + "\">"+ $.i18n.prop('dashboard.renew.period') +"</div>";
+	html += "\n <div class=\"expiration_confirm_button\" id=\"" + idconfirm_btn + "\" onClick=\"dday_alarm_click_confirm('" + obj.deviceid + "');\">"+ $.i18n.prop('dashboard.confirm') +"</div>";
+	html += "\n </div>";
+	html += "\n </div>";
+
+    var map = {amp: '&', quot: '"', '#039': "\'"};
+    obj.groupname = obj.groupname.replace(/&([^;]+);/g, function (m, c) { return map[c]; });
+	  
+	html += "\n</div>";
+	return html;
+} */
+
+function makeDeviceHtml(obj) {
+	
+	var iconPath = obj.deviceiconpath;
+	var temp =  $.i18n.prop('common.temp');
+	var iconName = temp; //다국어로 변경해야 함
+	var deviceName = obj.devicename;
+	var deviceUpdateTime = '시간'; //redis
+	var devicetimeid = "time_" + obj.deviceid;
+	var firmwareid = "firmware_" + obj.deviceid;
+	var html = "";
+	var idwifi = "wifi_" + obj.deviceid;
+	var idalarm = "alarm_" + obj.deviceid;
+	var idpush = "push_" + obj.deviceid;
+	var idsyspush = "syspush_" + obj.deviceid;
+	var idalarm_btn = "alarm_btn_" + obj.deviceid;
+	var idtext = "dday_text_" + obj.deviceid;
+	var iddday = "dday_" + obj.deviceid;
+	var idexpirationalarm = "expiration_alarm_" + obj.deviceid;
+	var idddayalarm = "dday_alarm_" + obj.deviceid;
+	var idoverlay = "overlay_" + obj.deviceid;
+	var idrenew_btn = "renew_btn_" + obj.deviceid;
+	var idconfirm_btn = "confirm_btn_" + obj.deviceid;
+	var overlay_flag = "overlay_flag_" + obj.deviceid;
+	var overlay_flag_val = false;
+	var sensorSetting = $.i18n.prop('device.setting');
+	var showDetails =  $.i18n.prop('listview.detail');
+	var alarmHistory =  $.i18n.prop('listview.alarm.history');
+	var expiryDate =  $.i18n.prop('listview.expiry.date');
+	var pushsysenable = obj.pushsysenable;
+	var classsyspush = "icoSysPush ";
+	
+	if(pushsysenable == "Y") {
+		classsyspush += "icoSysPush00";
+	} else {
+		classsyspush += "icoSysPush01";
+	}
+	
+	var idalarmcodedevicename = "dashDeviceName_"+obj.deviceid;
+	var url = "/dashboard/listviewdetail.do?menu_listview=1"
+			  + "&deviceid=" + obj.deviceid
+			  + "&iconpath=" + obj.deviceiconpath
+			  + "&devicetype=" + obj.devicetypecd;
+	
+	var alarmListUrl = "/alarm/alarm_list.do?menu_cont=1"
+		+ "&group=" + obj.groupid
+		+ "&type=" + obj.devicetypecd
+		+ "&deviceid=" + obj.deviceid;
+
+	html += "\n <div class=\"dashDevice_H\">";
+	html += "\n	  <div class=\"dashDeviceTop_H\">";
+	html += "\n		<ul class=\"dashDeviceTop_inner_H\">";
+	html += "\n			<li><a href=\"" + alarmListUrl + "\" rel=\"external\" id=\"" + idalarm_btn + "\" class=\"alarm_btn\" onClick=\"alarm_click('" +obj.deviceid+ "');\"><span id=\"" + idalarm + "\" class=\"icoAlarm\" title=\"" + alarmHistory + "\"></span></a></li>";
+	html += "\n			<li><span class=\"dashDeviceName_H\">" + deviceName + "</span></li>";
+	if (grade < 21) {
+		html += "\n	    <li> <a class=\"btnDetailSet mainPosi\" onclick=\"showControlLayer('" + obj.deviceid + "','" + obj.groupid + "','" + obj.groupname + "','" + obj.devicetypecd + "');\" title=\""+ sensorSetting +"\">"+ sensorSetting +"</a></li>";
+	}
+	html += "\n     </ul>"
+	html += "\n   </div>";
+	html += "\n   <div class=\"dashDeviceCenter_H\">";
+	html += "\n     <div class=\"dashDeviceCenter_inner_H\" id=\"dashDeviceCenter_H_" + obj.deviceid + "\">";
+	html += "\n       <div class=\"dashDeviceCenter_inner_content_H\" id=\"dashDeviceCenter_content_H_" + obj.deviceid + "\" onClick=\"listviewDetail('" + url + "','" + obj.deviceid + "') \" title=\""+ showDetails +"\" >";
+	
+    html += "\n       </div>";
+    html += "\n     </div>";
+    html += "\n   </div>";
+
+    html += "\n   <div class=\"dashDeviceBottom_H\">";
+    html += "\n    <ul>";
+    html += "\n     <li><span class=\"type_text_H\">"+obj.devicetypename+"</span><span class=\"firmware_text_H\" id=\"" + firmwareid + "\">"+obj.devicetypename+"</span><span class=\"plantype_text_H\" id=\"plantype_" + obj.deviceid + "\"></span></li>";
+    html += "\n     <li><time class=\"dashTimeMain_H\" id=\"" + devicetimeid + "\"></time></li>";
+    html += "\n    </ul>";
+    html += "\n    <ul onClick=\"dday_alarm_click('" + obj.deviceid + "');\">";
+    html += "\n     <li class=\"dday_time_H\" id=\"" + iddday + "\" title=\"" + expiryDate + "\"></li>";
+    html += "\n    </ul>";
+    html += "\n    <ul>";
+    html += "\n     <li><span class=\"icoPush\" id=\"" + idpush + "\" title=\"\"></span></li>";
+    html += "\n     <li><span class=\"" + classsyspush + "\" id=\"" + idsyspush + "\"  title=\"\"></span></li>";
+    html += "\n	    <li><span class=\"icoWifi\" id=\"" + idwifi + "\"  title=\"\"></span></li>";
+    html += "\n    </ul>";
+    html += "\n   </div>";
+    
+    html += "\n <div class=\"overlay_H\" id=\"" + idoverlay + "\" value=\"" + overlay_flag_val + "\">";
+	html += "\n <div class=\"overlay_container_H\">";
+	html += "\n <div class=\"overlay_title\">"+ $.i18n.prop('dashboard.notice') +"</div>";
+	html += "\n <div class=\"overlay_content\">";
+	html += "\n <div class=\"overlay_content_expiration\" id=\"" + idexpirationalarm + "\"></div>";
+	html += "\n <div class=\"overlay_content_dday\" id=\"" + idddayalarm + "\"></div>";
+	html += "\n </div>";
+	html += "\n <div class=\"expiration_renew_button\" id=\"" + idrenew_btn + "\">"+ $.i18n.prop('dashboard.renew.period') +"</div>";
+	html += "\n <div class=\"expiration_confirm_button\" id=\"" + idconfirm_btn + "\" onClick=\"dday_alarm_click_confirm('" + obj.deviceid + "');\">"+ $.i18n.prop('dashboard.confirm') +"</div>";
+	html += "\n </div>";
+	html += "\n </div>";
+	
+	
+	html += "\n <div class=\"loading-container_div\" id=\"loading_container_" + obj.deviceid + "\"></div>";
+	
+	/*
+	 * 구매자, 중간관리자만 설정값이 보이도록 수정
+	 * 구매자 grade = 10, 중간관리자 = 20
+	 */
+    var map = {amp: '&', quot: '"', '#039': "\'"};
+    obj.groupname = obj.groupname.replace(/&([^;]+);/g, function (m, c) { return map[c]; });
+	  
+	return html;
+}
+
+function listviewDetail(url,deviceid_id) {
+	
+	$("#loading_container_" + deviceid_id).css("display","block");
+
+	var html = "";
+	
+	html += "\n   <div class=\"loading-container\" >";
+    html += "\n     <div class=\"loading\"></div>";
+    html += "\n     <div id=\"loading-text\">loading</div>";
+    html += "\n   </div>"; 
+	
+	$("#loading_container_" + deviceid_id).append(html);
+	
+	location.href = url;
+		
+}
+
+function alarm_click(device_id) { // 날짜,시간데이터 알람내역으로 
+
+	var date_time = $("#time_"+device_id).text(); // 날짜,시간
+	var date = date_time.substring(0,10);
+	var href = $("#alarm_btn_"+device_id).attr("href");
+	var href_change;
+	var empty = "empty";
+	if(date == "") {
+		href_change = href + "&datetime=";
+	} else {
+		href_change = href + "&datetime="+date;
+	}
+	$("#alarm_btn_"+device_id).attr("href",href_change); 
+}
+
+function dday_alarm_click(device_id) { // 기간갱신 알람팝업 
+	$("#overlay_"+device_id).show();
+}
+
+function dday_alarm_click_confirm(device_id) { // 기간갱신 알람 확인 버튼
+	$("#overlay_"+device_id).hide();
+}
+
+function getAlarmColorClass(code) {	
+	 if(code==undefined){
+	      code = 0;
+		}
+	 
+	var result = "";
+	
+	switch (code) {
+		case 0: 
+			result = "skyNum";  // 정상
+			/* result = ""; */
+			break; // black
+		case 1: 
+			result = "dangerNum"; // red  상한
+			break;
+		case 2: 
+			result = "dangerNum";  // 하한
+			/* result = "blueNum"; */
+			break;
+		case 3: 
+			result = "cautionNum"; // 근접
+			break;
+		case 4: 
+			result = "cautionNum";
+			/* result = "skyNum"; */
+			break;
+		case 5: 
+			result = "dangerNum"; // ERR
+			break;
+		case 6: 
+			result = "dangerNum"; // NC
+			break;
+		case 7: 
+			result = "dangerNum"; // CO
+			break;
+		case 8: 
+			result = "dangerNum"; // HO
+			break;
+	}
+	return result;
+	/* return "black"; */
+}
+
+function getAlarmColor(code) {	
+	
+	if(code==undefined){
+	      code = 0;
+		}
+	 
+	var result = "";
+	
+	switch (code) {
+		case 0: 
+			result = "skyText";  // 정상
+			break; // black
+		case 1: 
+			result = "dangerText"; // red  상한
+			break;
+		case 2: 
+			result = "dangerText";  // 하한
+			break;
+		case 3: 
+			result = "cautionText"; // 근접
+			break;
+		case 4: 
+			result = "cautionText";
+			break;
+		case 5: 
+			result = "dangerText"; // ERR
+			break;
+		
+	}
+	return result;
+	
+}
+
+function getAlarmIconValue(devicealarm) {
+
+	var obj_length = Object.keys(devicealarm).length;
+
+	if(obj_length ==0){
+		//알람 미 발생 아예
+		return false;
+	} else{
+		for (var arid in devicealarm) {
+			var val = devicealarm[arid];
+			if(val != 0) {
+				//하나라도 알람발생 상황이라면
+				return true;
+			}
+		}
+	}
+	//이 경우는 그냥 예외상황
+	return false;
+} 
+
+function getWifiClass(ri) {
+	
+	var ret = "icoWifi ";
+
+	ri = parseInt(ri);
+	
+	if(ri == 999) {
+		ret += "icoWifi00"; // 신호 x
+		return ret;
+	}
+	
+	if (ri < -80) {
+		ret += "icoWifi01";   // 약 
+		return ret;
+	} else {
+		ret += "icoWifi02";   // 강 
+		return ret;
+	}
+
+	ret += "icoWifi02";
+	return ret;
+}
+
+function getSystemPushData(deviceid) {
+	
+	var parameter = {
+		deviceid: deviceid
+	}
+	
+	$.ajax({
+		type: "GET",
+		data: parameter,
+		url: "/openapi/device/setting/getSysPush",	
+		success : function(response) {
+			if (response.returnCode != "200")
+				return;
+			
+			var pushsysenable = response.data.pushsysenable;
+			var classsyspush = "icoSysPush ";
+			
+			if(pushsysenable == "Y") {
+				classsyspush += "icoSysPush00";
+			} else {
+				classsyspush += "icoSysPush01";
+			}
+			
+			$("#syspush_" + deviceid).removeClass()
+			$("#syspush_" + deviceid).addClass(classsyspush);
+		},
+        error : function(xhr, status, error) {
+        }
+	});
+}
+
+function setDeviceData(obj) {
+	
+	var map = {amp: '&', quot: '"', '#039': "'"};
+	obj = obj.replace(/&([^;]+);/g, function (m, c) { return map[c]; });
+
+	// 모든 그룹 삭제
+	var obj = JSON.parse(obj);
+	var firmware = obj.fw; // 펌웨어 버전
+	var deviceid = obj.id; // device id
+	var data = obj.dt; // device data
+	var devicetype = obj.tp; // device type
+	var devicealarm = obj.ar; //devicealarm["채널아이디"]
+	var devicepush = obj.pe;
+	var plantype = obj.ptp;
+	var timestamp = obj.ts * 1000; //timestamp
+	var dday_timestamp = obj.exp * 1000;
+	var dday = new Date(dday_timestamp); // dday
+	var ddayChange = dday.getTime(); // 변환
+	var nowday = new Date(); // 현재시간
+	nowday = nowday.getTime(); // 변환
+	var distance = ddayChange - nowday; 
+	var d = Math.floor(distance / (1000*60*60*24)); // 일
+	var dday_month = dday.getMonth()+1; //dday 날짜변환
+	var dday_day = dday.getDate();
+	var dday_year = dday.getFullYear();
+	var dt = new Date(timestamp);
+	var month = dt.getMonth()+1;
+	var day = dt.getDate();
+	var year = dt.getFullYear();
+	var hour = dt.getHours();
+	var minute = dt.getMinutes();
+	var second = dt.getSeconds();	
+	
+	var channelid1_H = "channel1_H_" + deviceid;
+ 	var channelid2_H = "channel2_H_" + deviceid;
+ 	var channelid3_H = "channel3_H_" + deviceid;
+ 	var test_html1 = "";
+	var test_html2 = "";
+	var test_html3 = "";
+
+	var agent = navigator.userAgent.toLowerCase();
+	// wifi 설정
+	var idwifi = "#wifi_" + obj.id; //wifi
+	var classwifi = getWifiClass(obj.ri);
+	$(idwifi).removeClass();
+	$(idwifi).addClass(classwifi);
+
+	// 알람 설정 
+	var idalarm = "#alarm_" + obj.id;
+	var isAlarm = getAlarmIconValue(devicealarm);
+	var classalarm = "icoAlarm ";
+
+	if(isAlarm == true) {
+		classalarm += "icoAlarm01"; 
+		$("#alarm_btn_"+obj.id).show();
+		
+	} else {
+		classalarm += "icoAlarm00"; 
+		$("#alarm_btn_"+obj.id).hide();
+	}
+	$(idalarm).removeClass();
+	$(idalarm).addClass(classalarm);
+	
+	// 푸시 설정
+	var idpush = "#push_" + obj.id;
+	var classpush = "icoPush ";
+	
+	if(devicepush == true) {
+		classpush += "icoPush00"; 
+	} else {
+		classpush += "icoPush01"; 
+	}
+	$(idpush).removeClass();
+	$(idpush).addClass(classpush);
+	
+	$("#firmware_"+obj.id).text("v"+firmware);
+	
+	var plantype_text = "";
+	if(plantype == 1) plantype_text = "Standard";
+	else if(plantype == 0) plantype_text = "Basic";
+	else plantype_text = "";
+	
+	$("#plantype_"+obj.id).text(plantype_text);
+	
+	//var idexpirationalarm = "#expiration_alarm_" + obj.id;
+	//var idddayalarm = "#dday_alarm_" + obj.id;
+	var classdday = "dash_dday ";
+	var idexpirationalarm_text = $.i18n.prop('dashboard.expiration.date')+ " " + dday_year + "-" + dday_month + "-" + dday_day;
+	var idddayalarm_text = $.i18n.prop('dashboard.expiration') + "("+d+""+$.i18n.prop('dashboard.day.ago')+")";
+	
+	if(d < 0) { // 기간만료
+		// show
+		$("#overlay_"+obj.id).css("display","block");
+		$("#confirm_btn_" + obj.id).hide();
+		$("#dday_" + obj.id).text($.i18n.prop('dashboard.expiration')); // 대시보드 D-day
+		$("#expiration_alarm_" + obj.id).text($.i18n.prop('dashboard.contents_one')); // 기간갱신(만료일)
+		$("#dday_alarm_" + obj.id).text($.i18n.prop('dashboard.contents_two')); // 알림시 만료D-day 
+	} else { // 기간만료 ㄴㄴ
+		$("#confirm_btn_" + obj.id).show();
+		$("#dday_" + obj.id).text($.i18n.prop('dashboard.effective.date') + " "+ d); // 대시보드 D-day
+		$("#expiration_alarm_" + obj.id).text(idexpirationalarm_text); // 알림시 만료일자
+		$("#dday_alarm_" + obj.id).text(idddayalarm_text); // 알림시 만료D-day 
+		$("#dday_text_" + obj.id).css("color", "#000000");
+		$("#dday_" + obj.id).css("color", "#000000");
+	}
+	if(d <= 7) { // 기간만료 7일 전
+		
+		$("#dday_text_" + obj.id).css({ "color": "#f56565", "font-weight": "bold" });
+		$("#dday_" + obj.id).css({ "color": "#f56565", "font-weight": "bold" });
+	} 
+
+	//console.log("D - "+d);
+	
+	/* var datetime = year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + second; */
+	var datetime = year + "-" + (month < 10 ? "0" + month : month) + "-" + (day < 10 ? "0" + day : day) + " " + 
+		(hour < 10 ? "0" + hour : hour) + ":" + (minute < 10 ? "0" + minute : minute) + ":" + (second < 10 ? "0" + second : second);	
+	
+	var channelhtml1 = "";
+	var channelhtml2 = "";
+	var channelhtml3 = "";
+		
+	var channelhtml = "";
+	var channelname = "";
+	var channelmeasure = "";
+	var channelclass = "";
+	var channelcolor = "";
+	var alarmcode = "";
+	var alarmcodedevicename = getAlarmColorClass(0); //default
+			
+	for (var channelid in data) {
+		var val = data[channelid]; // channelid 에 해당하는 데이터
+		var dashTemNum;
+		
+		if($.isNumeric(val)) {
+			dashTemNum = val.toFixed(1);
+			dashTemComma = ".";
+		} else {
+			if(val == "ERR") val = "ERR.";
+			else if(val == "N.C") val = "NC.";
+			else if(val == "H.O") val = "HO.";
+			else if(val == "C.O") val = "CO.";
+				
+			dashTemNum = val;
+			dashTemComma = ".";		
+		}
+		
+		var dashTemString = dashTemNum.toString();
+		var dashTemStr = dashTemString.split('.');
+		
+		// channelid : channelid(예: 센서명)
+		// value : value(예: 센서값)
+		alarmcode = devicealarm[channelid];
+		channelclass = getAlarmColorClass(alarmcode);	
+		channelcolor = getAlarmColor(alarmcode);
+		
+		// 변경예정(다국어 적용)
+		channelname = "channel.code_" + devicetype + "_" + channelid;
+		var channelnameCode = $.i18n.prop(channelname);
+
+		channelmeasure = "type.code_"+ devicetype +"_"+ channelid;
+		var	channelmeasureCode = $.i18n.prop(channelmeasure);
+		
+		if(devicetype == 4) {
+			
+			if(channelid == 1 ) {
+				test_html1 += "\n <div class=\"dashDeviceL_H\" id=\"dashDevice_content1_" + deviceid + "\"><ul class=\"dashTempList1_H\" id=\"" + channelid1_H + "\"></ul></div>";
+			} else if(channelid == 3) {
+				test_html2 += "\n <div class=\"dashDeviceC_H\" id=\"dashDevice_content2_" + deviceid + "\"><ul class=\"dashTempList2_H\" id=\"" + channelid2_H + "\"></ul></div>";
+			} else if(channelid == 5) {
+				test_html3 += "\n <div class=\"dashDeviceR_H\" id=\"dashDevice_content3_" + deviceid + "\"><ul class=\"dashTempList3_H\" id=\"" + channelid3_H + "\"></ul></div>";
+			}
+
+			if(channelid == 1) channelhtml1 +=      "\n<li><span class=\"dashTemIco\" id=\"tem_1_" + obj.id + "\" ></span> <span class=\"dashTempContainer_H\"> <em class=\"dashTemperatureNum_H " + channelcolor + "\" id=\"deshTemNum1_H_" + obj.id + "\">" + dashTemStr[0] + "</em> <em class=\"dashTemperaturePoint_H " + channelcolor + "\">" + dashTemComma + "</em> <em class=\"dashTemperatureMinority_H " + channelcolor + "\">" + dashTemStr[1] + "</em> </span> <span class=\"roundBox00_H\">LINK1</span></li>";
+			else if(channelid == 2) channelhtml1 += "\n<li><span id=\"hum_2_" + obj.id + "\" ></span> <span class=\"dashHContainer_H\" id=\"dashHContainer2_H_" + obj.id + "\"> <em class=\"dashHumNum_H " + channelcolor + "\" id=\"dashHumNum2_H_" + obj.id + "\">" + dashTemStr[0] + "</em> <em class=\"dashHumPoint_H " + channelcolor + "\" id=\"dashHumPoint2_H_" + obj.id + "\">" + dashTemComma + "</em> <em class=\"dashHumMinority_H " + channelcolor + "\">" + dashTemStr[1] + "</em></span><span class=\"circle\" id=\"circle_" + channelid + "_" + obj.id + "\" style=\"position:relative\"></span></li>";
+			else if(channelid == 3) channelhtml2 += "\n<li><span class=\"dashTemIco\" id=\"tem_3_" + obj.id + "\" ></span> <span class=\"dashTempContainer_H\"> <em class=\"dashTemperatureNum_H " + channelcolor + "\" id=\"deshTemNum3_H_" + obj.id + "\">" + dashTemStr[0] + "</em> <em class=\"dashTemperaturePoint_H " + channelcolor + "\">" + dashTemComma + "</em> <em class=\"dashTemperatureMinority_H " + channelcolor + "\">" + dashTemStr[1] + "</em> </span> <span class=\"roundBox00_H\">LINK2</span></li>";
+			else if(channelid == 4) channelhtml2 += "\n<li><span id=\"hum_4_" + obj.id + "\" ></span> <span class=\"dashHContainer_H\" id=\"dashHContainer4_H_" + obj.id + "\"> <em class=\"dashHumNum_H " + channelcolor + "\" id=\"dashHumNum4_H_" + obj.id + "\">" + dashTemStr[0] + "</em> <em class=\"dashHumPoint_H " + channelcolor + "\" id=\"dashHumPoint4_H_" + obj.id + "\">" + dashTemComma + "</em> <em class=\"dashHumMinority_H " + channelcolor + "\">" + dashTemStr[1] + "</em></span><span class=\"circle\" id=\"circle_" + channelid + "_" + obj.id + "\" style=\"position:relative\"></span></li>";
+			else if(channelid == 5) channelhtml3 += "\n<li><span class=\"dashTemIco\" id=\"tem_5_" + obj.id + "\" ></span> <span class=\"dashTempContainer_H\"> <em class=\"dashTemperatureNum_H " + channelcolor + "\" id=\"deshTemNum5_H_" + obj.id + "\">" + dashTemStr[0] + "</em> <em class=\"dashTemperaturePoint_H " + channelcolor + "\">" + dashTemComma + "</em> <em class=\"dashTemperatureMinority_H " + channelcolor + "\">" + dashTemStr[1] + "</em> </span> <span class=\"roundBox00_H\">LINK3</span></li>";
+			else if(channelid == 6)	channelhtml3 += "\n<li><span id=\"hum_6_" + obj.id + "\" ></span> <span class=\"dashHContainer_H\" id=\"dashHContainer6_H_" + obj.id + "\"> <em class=\"dashHumNum_H " + channelcolor + "\" id=\"dashHumNum6_H_" + obj.id + "\">" + dashTemStr[0] + "</em> <em class=\"dashHumPoint_H " + channelcolor + "\" id=\"dashHumPoint6_H_" + obj.id + "\">" + dashTemComma + "</em> <em class=\"dashHumMinority_H " + channelcolor + "\">" + dashTemStr[1] + "</em></span><span class=\"circle\" id=\"circle_" + channelid + "_" + obj.id + "\" style=\"position:relative\"></span></li>";
+		  
+		} else if(devicetype == 1 || devicetype == 2 || devicetype == 3){
+			
+			test_html1 += "\n   <ul class=\"dashDeviceL_H\" id=\"dashDevice_content" + channelid + "_" + deviceid + "\">";
+			test_html1 += "\n    <li><span class=\"dashTemIco\" id=\"tem_" + channelid + "_" + deviceid + "\" ></span> <span class=\"dashTempContainer_H\"> <em class=\"dashTemperatureNum_H " + channelcolor + "\">" + dashTemStr[0] + "</em> <em class=\"dashTemperaturePoint_H " + channelcolor + "\">.</em> "; 
+			test_html1 += "\n	     <em class=\"dashTemperatureMinority_H " + channelcolor + "\">" + dashTemStr[1] + "</em>";
+			test_html1 += "\n        </span> <span class=\"roundBox00_H\">LINK"+channelid+"</span></li>";
+			test_html1 += "\n   </ul>";
+			
+		}
+	}
+	
+	//$(".tui-grid-border-line-top").css("background-color","#0b3f73");
+	/* if ( (navigator.appName == 'Netscape' && navigator.userAgent.search('Trident') != -1) || (agent.indexOf("msie") != -1) ) {
+		$(".dashHumIco").css("margin-left","41px");
+	} */
+	
+	// 센서들의 값 출력 
+	$("#channel_" + deviceid + " li").remove();
+	$("#channel_" + deviceid).append(channelhtml);
+	
+	$("#dashDevice_content1_" + deviceid).remove();
+	$("#dashDevice_content2_" + deviceid).remove();
+	$("#dashDevice_content3_" + deviceid).remove();
+	
+	$("#dashDeviceCenter_content_H_" + obj.id).append(test_html1);
+	$("#dashDeviceCenter_content_H_" + obj.id).append(test_html2);
+	$("#dashDeviceCenter_content_H_" + obj.id).append(test_html3); 
+	
+	$("#channel1_H_" + deviceid + " li").remove();
+	$("#channel1_H_" + deviceid).append(channelhtml1);
+	$("#channel2_H_" + deviceid + " li").remove();
+	$("#channel2_H_" + deviceid).append(channelhtml2);
+	$("#channel3_H_" + deviceid + " li").remove();
+	$("#channel3_H_" + deviceid).append(channelhtml3); 
+	
+	$("#time_" + deviceid).html(datetime);
+	
+	for (var channelid in data) {
+		
+		alarmcode = devicealarm[channelid];
+		var channelcolorclass = getAlarmColorClass(alarmcode);
+		
+		if(devicetype == 4) {
+			if(channelid == 1 || channelid == 3 || channelid == 5) {
+				
+				var val = data[channelid];
+				var idTem = "#tem_" + channelid + "_" + obj.id;
+				var classtem = "dashTemIco ";
+				
+				if(channelcolorclass == "skyNum") classtem += "icoTem00"; 
+				else if(channelcolorclass == "cautionNum") classtem += "icoTem01";
+				else if(channelcolorclass == "dangerNum") classtem += "icoTem02"; 
+
+				$(idTem).removeClass();
+				$(idTem).addClass(classtem);
+				
+				if(!($.isNumeric(val))) {
+					$("#deshTemNum" + channelid + "_H_" + obj.id).css("margin-left","7px");
+				}  
+			}
+			
+			if(channelid == 2 || channelid == 4 || channelid == 6) {
+				
+				var val = data[channelid];
+				var dashTemNum;
+				
+				var idHum = "#hum_" + channelid + "_" + obj.id;
+				var classhum = "dashHumIco ";
+				
+				if(channelcolorclass == "skyNum") {
+					circleColor = ['#6e99fe', '#5accad'];
+					classhum += "icoHum00"; 
+				} else if(channelcolorclass == "cautionNum") {
+					circleColor = ['#f15a22','#fdb813'];
+					classhum += "icoHum01";
+				}  else if(channelcolorclass == "dangerNum") {
+					circleColor = ['#b11116','#ed4126'];
+					classhum += "icoHum02"; 
+				} else {
+					circleColor = ['#E5E5E5','#E5E5E5']
+				}
+			
+				$(idHum).removeClass();
+				$(idHum).addClass(classhum);
+				
+				if($.isNumeric(val)) {
+					dashTemNum = val.toFixed(1);
+					
+				} else {
+					dashTemNum = 0;
+					if(val == "ERR") {
+						$("#dashHumNum" + channelid + "_H_" + obj.id).css("margin-left","35px");
+						$("#dashHumPoint" + channelid + "_H_" + obj.id).css("margin-left","70px");
+					} else {
+						$("#dashHumNum" + channelid + "_H_" + obj.id).css("margin-left","40px");
+						$("#dashHumPoint" + channelid + "_H_" + obj.id).css("margin-left","63px");
+					}
+				} 
+				
+				$("#circle_" + channelid + "_" + obj.id).circleProgress({ //들어갈 div class명을 넣어주세요
+			       startAngle: -Math.PI/2,
+			       value: dashTemNum / 100, //진행된 수를 넣어주세요. 1이 100기준입니다.
+			       size: 90, //도넛의 크기를 결정해줍니다.
+			       animation: false,
+			       fill: {
+			         gradient: circleColor //도넛의 색을 결정해줍니다.
+			       }
+			    })
+			}
+		} else if(devicetype == 1 || devicetype == 2 || devicetype == 3) {
+			if(channelid == 1 || channelid == 2 || channelid == 3) {
+				
+				var idTem = "#tem_" + channelid + "_" + obj.id;
+				var classtem = "dashTemIco ";
+				
+				if(channelcolorclass == "skyNum") classtem += "icoTem00"; 
+				else if(channelcolorclass == "cautionNum") classtem += "icoTem01";
+				else if(channelcolorclass == "dangerNum") classtem += "icoTem02"; 
+				
+				$(idTem).removeClass();
+				$(idTem).addClass(classtem);
+				
+			}
+		}
+	}
+}
+
+// 실시간 공지사항 데이터 가져오기
+function setNoticeData(obj) {
+	
+	$("#dashNoticeRolling").empty();
+	
+	var data = obj.data; 
+	var html = "";
+	
+	for(var key in data) {
+		html += "\n <li class=\"ttt\" id=\"key_" + key + "\">";
+		html += "\n  <div class=\"dashRollingTitle\"></div>";
+		html += "\n  <a href=" + data[key].link + " rel=\"external\">" + data[key].message + "</a>";
+		html += "\n </li>";
+	}
+	
+	$("#dashNoticeRolling").append(html); 
+	
+	if(notice_flag == true) {
+		height =  $(".dashNotice").height();
+		num = $(".rolling li").length;
+		max = height * num;
+		move = 0;
+		notice_count = obj.length;
+		notice_flag = false;
+	}
+	
+	move += height;
+	$(".rolling").animate({"top":-move},600,function(){
+		if( move >= max ){
+			$(this).css("top",0);
+			move = 0;
+		};
+	});
+	
+	if(notice_count != obj.length) {
+		notice_flag = true;
+	}
+	
+	$(".rolling").append($(".rolling li").first().clone());
+	
+}
+
+// 기기들의 실시간 데이터 가져오기
+function getDeviceData() {
+	var ids = deviceids.join(",");	
+	var postdata = {"deviceid": ids};
+		
+	$.ajax({
+		type:"POST",
+		url:"/openapi/device/getdata",
+		data:postdata,
+		dataType:"JSON", // 옵션이므로 JSON으로 받을게 아니면 안써도 됨
+		success : function(data) {
+			if (data.returnCode != "200")
+				return;
+			
+			var obj = data.data;
+			
+			for (var i = 0; i < obj.length; i++) {			
+				setDeviceData(obj[i]);
+			}
+			
+			setTimeout(getDeviceData, 5000); // 5초후 실행
+		},
+        error : function(xhr, status, error) {
+        	console.log("error");
+        }
+	});
+}
+
+//공지사항 데이터
+function getNoticeData() {
+	
+	var language = getCookie("localecd");
+	
+	var notice_language = "vola_notice_" + language;
+	
+	var postdata = {
+		"notice": notice_language
+	};
+		
+	$.ajax({
+		type:"POST",
+		url:"/openapi/device/getnoticedata",
+		data:postdata,
+		dataType:"JSON", // 옵션이므로 JSON으로 받을게 아니면 안써도 됨
+		success : function(data) {
+			
+			var obj = data.data;
+			
+			var objParse = [];
+			
+			if(obj == "null") {
+				obj = ["{&quot;ts&quot;: 1585785768000,&quot;data&quot;:{&quot;1&quot;:{&quot;message&quot;:&quot;V-OLA에 오신걸 환영합니다.&quot;,&quot;link&quot;:&quot;https://v-ola.com/dashboard/listview.do?menu_listview=1&quot;}}}"];
+			} 
+			
+			for (var i = 0; i < obj.length; i++) {	
+				var map = {amp: '&', quot: '"', '#039': "'"};
+				obj[i] = obj[i].replace(/&([^;]+);/g, function (m, c) { return map[c]; });
+
+				objParse[i] = JSON.parse(obj);
+				
+				if(objParse[i].data == undefined || objParse[i].data[i+1] == undefined || objParse[i].data[i+1].message == undefined || objParse[i].data[i+1].link == undefined || obj == "null") {
+					objParse = [{
+						"ts" : 1585785768000,
+						"data": {
+						    "1": {
+						      "message": "V-OLA에 오신걸 환영합니다.",
+						      "link": "https://v-ola.com/dashboard/listview.do?menu_listview=1"
+						    },
+						   
+						  }
+					}];
+				}
+			}
+			
+			for (var i = 0; i < obj.length; i++) {			
+				setNoticeData(objParse[i]);
+			} 
+			
+			setTimeout(getNoticeData, 5000); 
+		},
+        error : function(xhr, status, error) {
+        	console.log("error");
+        }
+	});
+}
+
+// 광고 팝업
+function getPopupData() {
+	
+	var language = getCookie("localecd");
+	var popup_language = "vola_popup_" + language;
+	
+	var postdata = {
+		"popup": popup_language
+	};
+		
+	$.ajax({
+		type:"POST",
+		url:"/openapi/device/getpopupdata",
+		data:postdata,
+		dataType:"JSON",
+		success : function(data) {
+			
+			var obj = data.data;
+			var objParse = [];
+			
+			var timestamp = Math.floor(new Date().getTime() / 1000);
+			
+			var map = {amp: '&', quot: '"', '#039': "'"};
+			obj[0] = obj[0].replace(/&([^;]+);/g, function (m, c) { return map[c]; });
+
+			objParse[0] = JSON.parse(obj);
+			
+			var starttime = objParse[0].starttime;
+			var endtime = objParse[0].endtime;
+			var title = objParse[0].data.title;
+			var message = objParse[0].data.message;
+			var link = objParse[0].data.link;
+			
+			if(starttime < timestamp && endtime > timestamp) {
+				layerPopupShow();
+			} 
+			
+			if($.cookie("popupCookie") == "Y") { 
+				layerPopupHide(0);
+			} 
+			
+			$("#popupTitle").html(title);
+			$("#popupContent").html(message);
+			$("#hiddenPopupValue").val(link);
+			
+		},
+        error : function(xhr, status, error) {
+        	console.log("error");
+        }
+	});
+}
+
+
+// 디바이스 추가를 하려는 div 만 보여주고자 할때 사용
+function showDeviceAdd() {	
+	var tempUser = navigator.userAgent;
+	
+	$("#dashCont").hide();
+	
+	if (tempUser.indexOf("iPhone") > 0 || tempUser.indexOf("iPad") > 0 || 
+			tempUser.indexOf("iPot") > 0 || tempUser.indexOf("Android") > 0) {
+		//mobile 접속		
+		$("#dashNoDeviceApp").show();
+		return;
+	}
+	
+	
+	$("#dashNoDeviceWeb").show();
+}
+
+function createDashBoardList() {
+	// get group list
+	$.ajax({
+		type: "GET",
+		url: "/openapi/device/group/list",	
+		success : function(data) {
+			if (data.returnCode != "200")
+				return;
+			
+			// 그룹 해쉬 초기화
+			var obj = data.data;
+			grouphash = [];
+			
+			// make group hash
+			for (var i = 0; i < obj.length; i++) {
+				grouphash[obj[i].groupid] = obj[i];
+			}
+
+			getDashBoardList();
+		},
+        error : function(xhr, status, error) {
+        }
+	});
+}
+
+// 대쉬보드 리스트 생성
+function getDashBoardList() {
+	$.ajax({
+		type:"GET",
+		url:"/openapi/dashboard/list",
+		dataType:"JSON", // 옵션이므로 JSON으로 받을게 아니면 안써도 됨
+		success : function(data) {
+			if (data.returnCode != "200")
+				return;
+			
+			// 모든 그룹 삭제
+			removeGroupAll();
+			// 모든 옵션 삭제
+			removeSelectGroupAll();
+			
+			deviceids = [];
+			groupids = [];
+			groupnames = [];
+			devicetypecds = [];
+			
+			// 모든 그룹 삭제
+			var obj = data.data;
+						
+			if (obj.length <= 0) {
+				if (grade < 20) {					
+					showDeviceAdd();
+				}
+				return;
+			}
+			
+			for (var i = 0; i < obj.length; i++) {				
+				var groupname = obj[i].groupname;
+				var groupid = obj[i].groupid;
+				obj[i].deviceid = obj[i].deviceid.trim();
+				// 그룹생성(이미 존재하는 그룹은 무시)
+				makeDeviceGroup(groupname, groupid);				
+				
+				// 그룹에 맞는 디바이스 추가
+				makeDevice(groupid, obj[i]);
+				
+				deviceids.push(obj[i].deviceid);
+				groupids.push(obj[i].groupid);
+				groupnames.push(obj[i].groupname);
+				devicetypecds.push(obj[i].devicetypecd);
+			}
+			
+			// 만약 디바이스가 없어서 생성되지 못한 그룹이 있는 경우 그룹 생성
+			for (var groupid in grouphash) {
+				// 그룹생성(이미 존재하는 그룹은 무시)
+				var groupname = grouphash[groupid]['groupname'];
+				makeDeviceGroup(groupname, groupid);
+			}
+			
+			// 디바이스 데이터들 가져오기
+			getDeviceData();
+			
+		},
+        error : function(xhr, status, error) {
+        	console.log("error");
+        }
+	});
+} 
+
+function closeControlLayer() {
+	$("#popupDeviceControlLayer").hide();
+	$("#popupBgLayer").hide();	
+}
+
+/* 추가 수정 2018-11-21 applyControlLayer내부 변경 */
+function applyControlLayer(deviceid, groupid, devicetypecd) {
+	var url = "/openapi/device/setting/set";
+	var devicename = $("#deviceUpdateDevicename").text();
+	var channelrangeList = new Array();
+
+	//get channelrange 
+	var sRangeIdArr = $("#sRangeId").val().substring(1,
+			$("#sRangeId").val().length).split(",");
+
+	var pushEnableCheck = $("#pushEnable").prop("checked");		// true,false;
+	var pushEnable; // Y,N 값
+	var pushRepeat;
+	
+	var pushInterval = $("#pushInterval").val();
+	var pushSendCountOn = $("#pushSendCountOn").prop("checked"); 
+	var pushSendCountOff = $("#pushSendCountOff").prop("checked");
+	var saveInterval = $("#storeInterval").val();
+	
+	if(pushEnableCheck) {
+		pushEnable = "Y";
+	} else {
+		pushEnable = "N";
+	}
+	
+	if(pushSendCountOn) {
+		pushRepeat = $("#pushSendCount").val(); // 1
+	} 
+	if(pushSendCountOff) {
+		pushRepeat = $("#pushSendCountOff").val(); // 0 제한없음
+	}
+	
+	/* console.log("pushEnable :" + pushEnable);
+	console.log("pushInterval :" + pushInterval);
+	console.log("pushRepeat :" + pushRepeat);
+	console.log("saveInterval :" + saveInterval); */
+
+	for (var i = 0; i < sRangeIdArr.length; i++) {
+		var data = new Object();
+		var rangeData = new Object();
+		data.channelid = sRangeIdArr[i];
+		rangeData.MIN = $("#from" + (sRangeIdArr[i]-1)).val();
+		rangeData.MAX = $("#to" + (sRangeIdArr[i]-1)).val();
+
+		data.channelrangedata = JSON.stringify(rangeData);
+		channelrangeList.push(data);
+		
+	}
+	
+	var channelrange = JSON.stringify(channelrangeList);
+	var parameter = {
+		deviceid : deviceid,
+		devicename : devicename,
+		groupid : groupid,
+		devicedesc : "",
+		channelrange : channelrange,
+		devicetypecd : devicetypecd,
+		pushEnable : pushEnable,
+		pushInterval : pushInterval,
+		pushRepeat : pushRepeat,
+		saveInterval : saveInterval
+	};
+	
+	var errorComment = $.i18n.prop('common.error');
+
+	$.ajax({
+		url : url,
+		data : parameter,
+		success : function(response) {
+			var respObj = respParser.parse(response);
+			var returnCode = response.returnCode;
+			if (respObj.isSuccess()) {
+				closeControlLayer();
+			} else {
+				alert(returnCode + " " + errorComment);
+			}
+		},
+		error : function() {
+			var errorComment = $.i18n.prop('common.error');
+			alert(errorComment);
+		}
+	});
+	
+}
+
+function applySysControlLayer(deviceid, groupid, devicetypecd) {
+	
+	var alertupdate = "수정 하시겠습니까?";
+	
+	if (!confirm(alertupdate)) {
+		return false;
+	}
+	
+	var url = "/openapi/device/setting/sysPushSet";
+	var pushSysEnableCheck = $("#pushSysEnable").prop("checked");		// true,false;
+	var pushSysEnable; // Y,N 값
+
+	if(pushSysEnableCheck) {
+		pushSysEnable = "Y";
+	} else {
+		pushSysEnable = "N";
+	}
+	
+	var parameter = {
+		deviceid : deviceid,
+		groupid : groupid,
+		pushSysEnable : pushSysEnable		
+	};
+	
+	var errorComment = $.i18n.prop('common.error');
+
+	$.ajax({
+		url : url,
+		data : parameter,
+		success : function(response) {
+			var respObj = respParser.parse(response);
+			var returnCode = response.returnCode;
+			if (respObj.isSuccess()) {
+				alert("적용 되었습니다.");
+				closeControlLayer();
+				
+				getSystemPushData(deviceid);
+				
+			} else {
+				alert(returnCode + " " + errorComment);
+			}
+		},
+		error : function() {
+			var errorComment = $.i18n.prop('common.error');
+			alert(errorComment);
+		}
+	});
+}
+
+/* 추가 수정 2018-11-21 슬라이더 추가 */
+function showControlLayer(deviceid, groupid, groupname, devicetypecd) {
+	
+	var url = "/openapi/device/setting/get";
+	var parameter = { 
+			deviceid : deviceid
+		};
+	
+	$.ajax({
+		url : url,
+		data : parameter,
+		success : function(response) {
+			var respObj = respParser.parse(response);
+			
+			if(respObj.isSuccess()) {
+				var data = respObj.getDataObj();
+				var tabHtml = "";
+				var tab_pushHtml
+				var tab_pushContentHtml = "";
+				var tab_systemPushContentHtml = "";
+				var tabContentHtml = new Array(data.channelrange.length);
+				var buttonHtml = "";
+				var channelidArr = new Array();
+				var from = new Array(data.channelrange.length);
+				var to = new Array(data.channelrange.length);
+				var toggle = false;
+				var systemPushToggle = false;
+				var map = {amp: '&', quot: '"', '#39': "'", '#40' : "(", '#41' : ")", lt: '<', gt: '>', '#35' : '#'};
+				
+				$(".tab_content").remove();
+				$(".tabs li").remove(); // tabs li 지워야 다시 로드될때 추가가 안된다
+        		$(".btnPopCenter").empty(); 
+        		
+				$.each(data, function(index, value) {
+					
+					if(index == "channelrange") {
+						
+					$.each(value, function(key, val) {
+						var channelrangedata = $.parseJSON(val.channelrangedata.replace(/&([^;]+);/g, function (m, c) { return map[c]; }));
+		        		var channelrangedatadefult = $.parseJSON(val.channelrangedatadefult.replace(/&([^;]+);/g, function (m, c) { return map[c]; }));
+		        		var channelrangedatauser;
+		        		
+		        		if(val.channelrangedatauser) {
+		        			channelrangedatauser = $.parseJSON(val.channelrangedatauser.replace(/&([^;]+);/g, function (m, c) { return map[c]; })); 
+		        		}
+		        		else {
+		        			channelrangedatauser = channelrangedatadefult;
+		        		}
+		        		
+		        		var	channelname = "channel.code_" + data.devicetypecd + "_" + val.channelid;
+		        		channelname = $.i18n.prop(channelname);
+		        	    var	channelmeasure = "type.code_" + data.devicetypecd + "_" + val.channelid;
+		        		var channelmeasureCode = $.i18n.prop(channelmeasure);
+		        		
+		        		var index = val.channelid-1; // 0~2 인덱스
+		        		var push_tab_index = data.channelrange.length+1;
+		        		
+		        		if(data.devicetypecd == 4) {
+		        			tabHtml = "<li class=\"tab_H\" rel=\"tab" + (index+1) + "\" id=\"tab_id" + (index+1) + "\">" + channelname + "</li>";
+		        			tab_pushHtml = "<li class=\"tab_H\" rel=\"tab"+ push_tab_index + "\" id=\"tab_id" + push_tab_index + "\">" + $.i18n.prop('device.push_h') + "</li>";
+		        			tab_systemPushHtml = "<li class=\"tab_H\" rel=\"tab8\" id=\"tab_id8\"  >" + $.i18n.prop('device.syspush') + "</li>";
+		        		} else if(data.devicetypecd == 1 || data.devicetypecd == 2 || data.devicetypecd == 3) {
+		        			tabHtml = "<li class=\"tab_T\" rel=\"tab" + (index+1) + "\" id=\"tab_id" + (index+1) + "\">" + channelname + "</li>";
+		        			tab_pushHtml = "<li class=\"tab_T\" rel=\"tab"+ push_tab_index + "\" id=\"tab_id" + push_tab_index + "\"  >" + $.i18n.prop('device.push_t') + "</li>";
+		        			tab_systemPushHtml = "<li class=\"tab_T\" rel=\"tab5\" id=\"tab_id5\"  >" + $.i18n.prop('device.syspush') + "</li>";
+		        		}
+		        		
+		        		tab_pushContentHtml = 
+		        			"<div id=\"tab" + push_tab_index + "\" class=\"tab_content\" >"
+						+ 	"<ul>"
+						+	 "<li id=\"tab_li_id" + push_tab_index + "\" >" 
+						+ 		"<div class=\"extra-controls\">"
+						+		 "<div class=\"push_name\">" + $.i18n.prop('device.push') + "</div>"
+						+			"<label class=\"switch\">";
+						
+						if(data.pushenable == "Y") {
+							tab_pushContentHtml += "<input type=\"checkbox\" class=\"pushEnable_input\" id=\"pushEnable\" checked >";
+							toggle = false;
+						}
+						else{
+							tab_pushContentHtml += "<input type=\"checkbox\" class=\"pushEnable_input\" id=\"pushEnable\"  >";
+							toggle = true;
+						}					
+						 				
+						tab_pushContentHtml = tab_pushContentHtml			
+						+				"<span class=\"slider round\"></span>"
+						+			"</label>"
+						+		"</div>"
+						+		"<div class=\"push_txt\">" + $.i18n.prop('device.push.danger') + "</div>"
+						+		"<div class=\"push_content\">"
+						+		  "<div class=\"push_txt\">" + $.i18n.prop('device.push.setting') + "</div>"
+						+		  "<div class=\"pushInterval_container\">"
+						+			 "<div class=\"push_name\">" + $.i18n.prop('device.interval') + "</div>"		
+						+			 "<select class=\"pushInterval_select_box\" id=\"pushInterval\" >"
+						+				"<option value=\"1\">1</option>"
+						+				"<option value=\"5\">5</option>"
+						+				"<option value=\"10\">10</option>"
+						+				"<option value=\"30\">30</option>"
+						+				"<option value=\"60\">60</option>"
+						+  			"</select>"
+						+			 "<label class=\"push_text\">" + $.i18n.prop('device.minute') + "</label>"
+						+		  "</div>"
+						+		  "<div class=\"pushSendCount_container\">"
+						+		 	"<div class=\"push_name\">" + $.i18n.prop('device.numberOfTimes') + "</div>";
+						
+						if(data.pushrepeat > 0) {
+							tab_pushContentHtml += 
+								"<div class=\"\"  >"	
+							+	"<input type=\"radio\" class=\"radio_btn\" id=\"pushSendCountOn\" name=\"trans\" value=\"1\" checked>" 
+							+	"<select class=\"pushSendCount_select_box\" id=\"pushSendCount\">"
+							+		"<option value=\"1\">1</option>"
+							+		"<option value=\"5\">5</option>"
+							+		"<option value=\"10\">10</option>"
+							+  	"</select>" 
+							+   "<label class=\"push_text\">" + $.i18n.prop('device.time') + "</label>"
+							+	"</div>"
+							+	"<div class=\"\"  >"	
+							+	"<input type=\"radio\" class=\"radio_btn\" id=\"pushSendCountOff\" name=\"trans\" value=\"0\">"
+							+   "<label class=\"push_text\">" + $.i18n.prop('device.noLimit') + "</label>"
+							+	"</div>"
+						} else if(data.pushrepeat == 0) {
+							tab_pushContentHtml += 
+								"<div class=\"\"  >"	
+							+	"<input type=\"radio\" class=\"radio_btn\" id=\"pushSendCountOn\" name=\"trans\" value=\"1\">" 
+							+	"<select class=\"pushSendCount_select_box\" id=\"pushSendCount\">"
+							+		"<option value=\"1\">1</option>"
+							+		"<option value=\"5\">5</option>"
+							+		"<option value=\"10\">10</option>"
+							+  	"</select>" 
+							+   "<label class=\"push_text\">" + $.i18n.prop('device.time') + "</label>"
+							+	"</div>"
+							+   "<div class=\"\">"
+							+	"<input type=\"radio\" class=\"radio_btn\" id=\"pushSendCountOff\" name=\"trans\" value=\"0\" checked>"
+							+   "<label class=\"push_text\">" + $.i18n.prop('device.noLimit') + "</label>"
+							+	"</div>"
+						}
+							
+						tab_pushContentHtml = tab_pushContentHtml
+						+		  "</div>"
+						+		"</div>"
+						+		  "<div class=\"deviceStoreInterval_container\">"
+						+			 "<div class=\"push_name\">" + $.i18n.prop('device.storageInterval') + "</div>"
+						+			 "<select class=\"deviceStoreInterval_input\" id=\"storeInterval\">"
+						+				"<option value=\"1\">1</option>"
+						+				"<option value=\"5\">5</option>"
+						+				"<option value=\"10\">10</option>"
+						+				"<option value=\"30\">30</option>"
+						+				"<option value=\"60\">60</option>"
+						+  			"</select>" 
+						+			 "<label class=\"push_text\">" + $.i18n.prop('device.minute') + "</label>"
+						+		  "</div>"
+						+	 "</li>"
+						+ 	"</ul>"
+						+ "</div>";
+		        		tabContentHtml = 
+		        			"<div id=\"tab" + (index+1) + "\" class=\"tab_content\">"
+		        			+ "<input type=\"hidden\" id=\"hidden_min" + index + "\" value=\""+ channelrangedatauser.MIN + "\"/>"
+		        			+ "<input type=\"hidden\" id=\"hidden_max" + index + "\" value=\""+ channelrangedatauser.MAX + "\"/>"
+	       					+ "<ul>"
+	       					+ "<li id=\"tab_li_id" + (index+1) + "\">" 
+	       					+ "<div class=\"extra-controls\">"
+	        				+ "<div class=\"channelnameContainer\">"+ channelname +"</div>"       			
+	        				+ "<a style=\"cursor:pointer\" class=\"btnPopReset\" id=\"reset_btn" + index + "\" >" + $.i18n.prop('device.reset') + "<i></i></a>"
+	        				+ "<div class=\"button_container\">"
+	        				+ "<div class=\"leftContainer\">"
+	        				+ "<button class=\"button button_min_down\" id=\"min_down_btn" + index + "\" value=\"\"><img class=\"ico_down_left\" src=\"../images/ico_down_left.png\"></button>"
+	        				+ "<input type=\"text\" maxlength=\"6\" class=\"inp min_inputbox\" id=\"from" + index + "\" value=\""+ channelrangedatauser.MIN + "\" onKeyUp=\"this.value=onlyNumberPress(this.value)\" />"
+	        				+ "<button class=\"button button_min_up\" id=\"min_up_btn" + index + "\" value=\"\"><img class=\"ico_up_left\" src=\"../images/ico_up_left.png\"></button>"
+	        				+ "</div>"
+	        				+ "<div class=\"boxContainer\"></div>"
+	        				+ "<div class=\"rightContainer\">"
+	        				+ "<button class=\"button button_max_down\" id=\"max_down_btn" + index + "\" value=\"\"><img class=\"ico_down_right\" src=\"../images/ico_down_right.png\"></button>"
+	        				+ "<input type=\"text\" maxlength=\"6\"  class=\"inp max_inputbox\" id=\"to" + index + "\" value=\""+ channelrangedatauser.MAX + "\" onKeyUp=\"this.value=onlyNumberPress(this.value)\" />"
+	        				+ "<button class=\"button button_max_up\" id=\"max_up_btn" + index + "\" value=\"\"><img class=\"ico_up_right\" src=\"../images/ico_up_right.png\"></button>"
+	        				+ "</div>"
+	        				+ "</div>"
+	        				+ "<div class=\"range-slider\">"
+	        				+ "<input type=\"text\" id=\"range" + index + "\" class=\"js-range-slider\" value=\"\" />"
+	        				+ "</div>"
+	        				+ "</div>"
+	       					+ "</li>"
+	       					+ "</ul>"
+	       					+ "</div>";
+	       					
+	       					buttonHtml = "<a style=\"cursor:pointer\" class=\"btnPopNormal\" onClick=\"closeControlLayer()\">"+ $.i18n.prop('common.cancel') +"<i></i></a>"
+                       		+ "<a style=\"cursor:pointer\" class=\"btnPopConfirm\" onClick=\"applyControlLayer('" + deviceid + "', '" + groupid + "', '" + devicetypecd + "')\">"+ $.i18n.prop('common.apply') +"<i></i></a>";
+	        				channelidArr[key] = val.channelid;
+	       					
+	        				$(".tabs").append(tabHtml);
+	        				$(".tab_container").append(tabContentHtml);
+	        				
+	        				var postfix = "℃";
+	        				
+	        				if(data.devicetypecd == 4) {
+	        					if(index == 1 || index == 3 || index == 5) postfix = '％';
+	        				} 
+	        				
+		       				$("#range"+index).ionRangeSlider({
+		        				type : "double",
+		        				min : channelrangedata.MIN,
+		        				max : channelrangedata.MAX,
+		        				from: channelrangedatauser.MIN,
+		        				to: channelrangedatauser.MAX,
+		        				step : 0.1,
+		        				postfix : postfix,
+		        				prettify_enabled : false,
+		        				grid : true,
+		        				grid_num : 5,
+		        				values_separator : "~",
+		        			}); 
+		       				
+						});
+					}
+					
+				});
+				
+				var push_tab_num;
+				
+				if (data.devicetypecd == 4) {
+					push_tab_num = 8;
+				} else {
+					push_tab_num = 5;
+				} 
+				
+				tab_systemPushContentHtml = 
+					"<div id=\"tab" + push_tab_num + "\" class=\"tab_content\" >"
+					+ 	"<ul>"
+					+	 "<li id=\"tab_li_id" + push_tab_num + "\">" 
+					+ 		"<div class=\"extra-controls\">"
+					+		 "<div class=\"push_name\">" + $.i18n.prop('device.pushsys') + "</div>"
+					+			"<label class=\"switch\" style=\"float:left;\">"
+					
+					if(data.pushsysenable == "Y") {
+						tab_systemPushContentHtml += "<input type=\"checkbox\" class=\"pushEnable_input\" id=\"pushSysEnable\" checked >";
+						systemPushToggle = false;
+					} else{
+						tab_systemPushContentHtml += "<input type=\"checkbox\" class=\"pushEnable_input\" id=\"pushSysEnable\"  >";
+						systemPushToggle = true;
+					}		
+						
+					tab_systemPushContentHtml = tab_systemPushContentHtml
+					+				 "<span class=\"slider round\"></span>"
+					+			"</label>"
+					+			"<div class=\"pushsys_label pushsys_btn\" onclick=\"applySysControlLayer('" + deviceid + "', '" + groupid + "', '" + devicetypecd + "');\"  >"+ $.i18n.prop('common.apply') +"</div>"
+					+		"</div>"
+					+		"</div>"
+					+	 "</li>"
+					+	"</ul>"
+					+"</div>";
+				
+				var devicename = data.devicename.replace(/&([^;]+);/g, function (m, c) { return map[c]; });
+	    		
+				$(".tabs").append(tab_pushHtml);
+				$(".tabs").append(tab_systemPushHtml);
+				$(".tab_container").append(tab_pushContentHtml);
+				$(".tab_container").append(tab_systemPushContentHtml);
+	    		$("#deviceUpdateDevicename").text(devicename);
+	    		$("#deviceUpdateDeviceid").text(deviceid);
+	    		$(".btnPopCenter").append(buttonHtml);
+	    		$("#popupBgLayer").show();
+	      		$("#popupDeviceControlLayer").show();
+	      		$(".tab_content").hide();
+			    $(".tab_content:first").show();
+	      		
+			  //range = $range.data("ionRangeSlider");
+      	  	    $(".js-range-slider").on("change", function() {
+        			var id = $(this).attr("id");
+        			var id_num = id.substr(id.length - 1);
+        			var object = $("#range"+id_num).data("ionRangeSlider");
+        			
+        			from[id_num] = object.result.from;
+        			to[id_num] = object.result.to;
+        			
+        			$("#from"+id_num).prop("value",from[id_num]);
+        			$("#to"+id_num).prop("value",to[id_num]);
+        		}); 
+  	       	    var updataRange = function(id_num) {
+  	       			$("#range"+id_num).data("ionRangeSlider").update({
+  	       				from : from[id_num],
+  	       				to : to[id_num]
+  	       			});
+  	       		};
+           		$(".min_inputbox").on("change", function() {
+       				var id = $(this).attr("id");
+       				var id_num = id.substr(id.length - 1);
+       				from[id_num] = +$(this).prop("value");
+       				updataRange(id_num);
+  	       		});
+  	       		$(".max_inputbox").on("change", function() {
+  	       			var id = $(this).attr("id");
+  	       			var id_num = id.substr(id.length - 1);
+  	       			to[id_num] = +$(this).prop("value");
+  	       			updataRange(id_num);
+  	       		});
+  	       		$(".button_min_down").on("click", function() {
+  	       			var id = $(this).attr("id");
+  	       			var id_num = id.substr(id.length - 1);
+  	       			var object = $("#range"+id_num).data("ionRangeSlider");
+  	       			from[id_num] = object.result.from;
+  	       			from[id_num] -= 0.1;
+  	       			updataRange(id_num);
+  	       		});
+  	       		$(".button_min_up").on("click", function() {
+  	       			var id = $(this).attr("id");
+  	       			var id_num = id.substr(id.length - 1);
+  	       			var object = $("#range"+id_num).data("ionRangeSlider");
+  	       			from[id_num] = object.result.from;
+  	       			from[id_num] += 0.1;
+  	       			updataRange(id_num);
+  	       		});
+  	       		$(".button_max_down").on("click", function() {
+  	       			var id = $(this).attr("id");
+  	       			var id_num = id.substr(id.length - 1);
+  	       			var object = $("#range"+id_num).data("ionRangeSlider");
+  	       			to[id_num] = object.result.to;
+  	       			to[id_num] -= 0.1;
+  	       			updataRange(id_num);
+  	       		});
+  	       		$(".button_max_up").on("click", function() {
+  	       			var id = $(this).attr("id");
+  	       			var id_num = id.substr(id.length - 1);
+  	       			var object = $("#range"+id_num).data("ionRangeSlider");
+  	       			to[id_num] = object.result.to;
+  	       			to[id_num] += 0.1;
+  	       			updataRange(id_num);
+  	       		});
+   	       		$(".btnPopReset").on("click", function() {
+	       			var id = $(this).attr("id");
+	       			var id_num = id.substr(id.length - 1);
+	       			var object = $("#range"+id_num).data("ionRangeSlider");
+	       			var hidden_min_value = $("#hidden_min"+id_num).val();
+	       			var hidden_max_value = $("#hidden_max"+id_num).val();
+	       			
+	 				$("#reset_btn"+id_num).css("background", "#a8c4eb");
+		       		setTimeout(function(){ $("#reset_btn"+id_num).css("background", "#fff"); },100); 
+		       		
+	 	       		from[id_num] = hidden_min_value;
+		 	       	to[id_num] = hidden_max_value
+		 	       	updataRange(id_num);
+	      		});
+       			if(data.pushenable == "Y") {
+       				$(".push_content").css("background","#fff");
+       				$(".push_content").find(".pushInterval_select_box, .pushSendCount_select_box, .radio_btn, .deviceStoreInterval_input").prop('disabled', false);
+       			} else {
+       				$(".push_content").css("background","#EAEAEA");
+       				$(".push_content").find(".pushInterval_select_box, .pushSendCount_select_box, .radio_btn, .deviceStoreInterval_input").prop('disabled', true);
+       			}
+   	       		$(".pushEnable_input").on("click", function() {
+	   	       		if(!toggle) { // 비활성화
+	   	       			$(".push_content").css("background","#EAEAEA");
+	   	       			toggle = true;
+	   	       			$(".push_content").find(".pushInterval_select_box, .pushSendCount_select_box, .radio_btn, .deviceStoreInterval_input").prop('disabled', true);
+	   	       		}
+	   	       		else { // 활성화
+	   	       		$(".push_content").css("background","#fff");
+	   	       			toggle = false;
+	   	       			$(".push_content").find(".pushInterval_select_box, .pushSendCount_select_box, .radio_btn, .deviceStoreInterval_input").prop('disabled', false);
+	   	       		}
+	   	       	}); 
+	   	       	
+	   	     	$("#pushInterval").val(data.pushinterval).prop("selected", true); // 푸시 간격
+	   	     	$("#pushSendCount").val(data.pushrepeat).prop("selected", true);  // 푸시 횟수
+	   	     	$("#storeInterval").val(data.saveinterval).prop("selected", true);  // 디바이스 저장간격
+	   	     	if(data.pushrepeat == 0) {
+	   	     		$("#pushSendCount").val("1");
+	   	     		$(".pushSendCount_select_box").prop('disabled', true);
+	   	     	}
+	   	     	
+	   	     	$("#pushSendCountOn").on("click", function() {
+	   	       		$(".pushSendCount_select_box").prop('disabled', false);
+	   	       	});
+	   	       	$("#pushSendCountOff").on("click", function() {
+	   	       		$(".pushSendCount_select_box").prop('disabled', true);
+	   	       	});
+   	       		
+  	    		$("#sRangeId").val("");
+  				for (var i=0; i<channelidArr.length; i++) {
+  					$("#range-slider" + channelidArr[i]).rangeslider();
+  					$("#sRangeId").val($("#sRangeId").val() + "," + channelidArr[i]);
+  	    		}
+	    
+				$("ul.tabs li").first().addClass("active").css("color","#000");
+  				
+			    $("ul.tabs li").click(function () {
+			    	
+			    	$("ul.tabs li").removeClass("active");
+			    	$("ul.tabs li").css("background","#F1F1F1");
+			        $(this).addClass("active").css("background", "#fff");
+			        
+			        $(".tab_content").hide()
+			        var activeTab = $(this).attr("rel");
+			        $("#" + activeTab).fadeIn(1)
+			        
+			        if(data.devicetypecd == 4) {
+			        	if(activeTab == "tab8") {
+				        	$(".btnPopCenter").hide();
+				        } else {
+				        	$(".btnPopCenter").show();
+				        }
+			        } else {
+			        	if(activeTab == "tab5") {
+				        	$(".btnPopCenter").hide();
+				        } else {
+				        	$(".btnPopCenter").show();
+				        }
+			        }
+			    });
+				
+			} else {
+				alert("에러입니다.");
+			}
+		},
+		error : function() {
+			alert("error");
+		}
+	});
+
+}
+
+//숫자 - . 만 입력하도록 하는 함수
+function onlyNumberPress(val) {
+    // 숫자를 제외한 나머지만 반환하는 정규식
+    // 12.34214asd -> asd만 반환
+    var pattern1 = /[^-?\d+\.?\d+]+/gi;
+    // 소수점 한 자리 까지만 유지하는 정규식
+    // 123124.3214 -> 123124.3만 반환
+    var pattern2 = /^[-]?\d*[\.]?\d{0,1}/gi;
+
+    // 문자열 제거
+    var temp1 = val.replace(pattern1, "");
+    
+    // 제거된 문자열에서 정수부분이 9자리 미만이 되도록 조정
+    var temp2 = temp1.split('.');
+    
+    if (temp2[0].length > 9) {
+        var i = temp2[0].substr(0, 9);
+        temp1 = i + temp2[1];
+    }
+
+    return pattern2.exec(temp1);	
+}
+
+function layerPopupShow(){
+	$(".layerPopup").attr("style","display:block");
+}
+//레이어팝업 비노출
+function layerPopupHide(state){
+
+    $(".layerPopup").attr("style","display:none");
+    
+    //오늘하루보지않기 버튼을 누른 경우
+    if(state == 1){
+    	//'testCookie' 이름의 쿠키가 있는지 체크한다.
+        if($.cookie("popupCookie") == undefined){
+            //쿠키가 없는 경우 testCookie 쿠키를 추가
+            $.cookie("popupCookie", 'Y', { expires: 5000, path: '/' });
+          	
+        }        
+    }
+}
+
+
+$(function(){
+	
+	//JQuery mobile 로 인해서 추가함
+	$("a").each(function() {
+		$(this).attr("rel", "external");
+	});
+	
+	getDashBoardList();
+
+	getNoticeData();
+	
+	var language = getCookie("localecd");
+
+	if(language == "ko") {
+		layerPopupHide(0);
+		getPopupData();
+	}
+	
+	$("#closeLayerPopup").click(function() {
+		layerPopupHide(0);
+	});
+	
+	$("#closeInvisibleLayerPopup").click(function() {
+		layerPopupHide(1);
+	});
+	
+	$("#pageMoveBtn").click(function() {
+		var link = $("#hiddenPopupValue").val();
+		window.open(link);	
+	});
+	
+});
+</script>
+</head>
+
+<body class="index">
+<div class="wrap">
+	<div th:include="fragment/header::frgHeader" class="header"></div>
+    
+    <div class="dashNotice">
+		<ul class="rolling" id="dashNoticeRolling">
+			
+		</ul>
+	</div>
+    
+    <div class="contents">
+        <div class="dashSearchTop">
+            <ul class="searchTopList">
+                <li>
+                    <span class="selBox02">
+                        <select name="" id="selectGroup" onChange="changeGroup()" data-role="none">
+                            <option value=""><th:block th:text="#{common.entiregroup}"></th:block></option>
+                        </select>
+                    </span> 
+                </li>
+                <li><a href="/dashboard/listview.do?menu_listview=1" class="btnRefresh" th:attr="title=#{common.refresh}"><th:block th:text="#{common.refresh}"></th:block></a></li>
+            </ul>
+        </div>
+<!--web 디바이스가 없을때 start-->
+        <div class="dashNoDeviceWeb" id="dashNoDeviceWeb" style="display: none">
+            <div class="noDeviceTxt">
+                <p class="noDeviceTxtB"><th:block th:text="#{listview.nodevice}"></th:block></p>
+                <p class="noDeviceTxtS"><th:block th:text="#{listview.registalert}"></th:block></p>
+            </div>
+        </div>
+<!--web 디바이스가 없을때 end-->
+<!--app 디바이스가 없을때 start-->
+        <div class="dashNoDeviceApp" id="dashNoDeviceApp" style="display: none">
+            <div class="noDeviceTxtApp">
+                <p class="noDeviceTxtAppB"><th:block th:text="#{listview.nodevice}"></th:block></p>
+                <p class="noDeviceTxtAppS"><th:block th:text="#{listview.registtip_1}"></th:block><br><th:block th:text="#{listview.registtip_2}"></th:block></p>
+            </div>
+            <a href="/device/categorylist.do" class="btnDeviceRegi"><th:block th:text="#{listview.regist}"></th:block></a>
+        </div>
+<!--app 디바이스가 없을때 end-->
+        <div class="dashCont" id="dashCont">
+      
+        </div>
+    </div>
+    
+</div>
+
+<!-- 광고 팝업 -->
+<div class="layerPopup">
+    <div class="layerBox">
+        <h1 class="title" id="popupTitle"></h1>
+        
+        <div class="cont">
+            <p id="popupContent"><p>
+        </div>
+        <a class="btnClose" id="closeLayerPopup">X</a>
+        <div class="popupBtnContainer">
+       		<div class="popupCheckBtn" id="pageMoveBtn">설문조사 참여하러 가기</div> 
+       		<input type="hidden" id="hiddenPopupValue" />
+        </div>
+        <div class="popupBtnContainer">
+        	<div class="popupInvisibleBtn" id="closeInvisibleLayerPopup">다시는 보지않기</div>
+        </div>
+    </div>
+</div>
+
+<!--센서범위변경 layer start-->
+<div class="popupLayer popupSetDash" style="display:none" id="popupDeviceControlLayer">
+	<input type="hidden" id="sRangeId" name ="sRangeId">
+    <div class="popupInner">
+        <div class="popupHead">
+            <h2><th:block th:text="#{device.sensor.settingtitle}"></th:block></h2>
+            <a style="cursor:pointer" class="btnClosePop" onClick="closeControlLayer()"><th:block th:text="#{common.close}"></th:block></a>
+        </div>
+        <div class="popupBody">
+            <div id="channelrange" class="popupDashSensor">
+                <h3 id="deviceUpdateDevicename"></h3>
+                <h4 id="deviceUpdateDeviceid"></h4>
+               
+                <!-- 추가 테스트 슬라이더 탭 -->
+                <div id="container">
+                	<ul class="tabs">
+                		
+                	</ul>
+                	<div class="tab_container">
+                		
+                	</div>
+                </div>
+    			<!--  -->
+    			
+            </div>
+            <div class="btnPopCenter">
+            	<!-- 
+                <a style="cursor:pointer" class="btnPopNormal" onClick="closeControlLayer()"><th:block th:text="#{common.cancel}"></th:block><i></i></a>
+                <a style="cursor:pointer" class="btnPopConfirm" onClick="applyControlLayer()"><th:block th:text="#{common.apply}"></th:block><i></i></a>
+                 -->
+            </div>
+        </div>
+    </div>
+</div>
+<!--센서범위변경 layer end-->
+
+<!--배경 layer start-->
+<div class="popupBgLayer" id="popupBgLayer" style="display:none"></div>
+<!--배경 layer end-->
+
+<!-- 추가 2018-11-21 슬라이더 사용  -->
+<link rel="stylesheet" href="/css/ion.rangeSlider.css" />
+<link rel="stylesheet" href="/css/ion.rangeSlider.skinFlat.css" />
+<script src="/js/ion.rangeSlider.min.js"></script>
+
+<script type="text/javascript">
+//moobile menu
+$(document).ready(function() {
+	
+    $(".mMenu").click(function(){
+        $(".nav").toggleClass("mNavOn");
+        $(this).toggleClass("mMenuClose");
+    });
+    
+});
+
+$(window).bind("pageshow", function(event) {
+	if(event.originalEvent && event.originalEvent.persisted) {
+		window.location.reload();
+	} else {}
+});
+
+</script>
+</body>
+</html>

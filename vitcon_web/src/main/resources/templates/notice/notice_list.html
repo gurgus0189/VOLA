@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width" />
+<title>VITCON - THE HUB OF CONTROLLER</title>
+
+<script src="/js/jquery-2.1.4.min.js"></script>
+<script src="/js/jquery-ui-1.11.4.min.js"></script>
+<script src="/js/namespace.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/jquery.i18n.properties.js"></script>
+<script src="/js/jquery.cookie.js"></script>
+<script src="/js/language/language.js"></script>
+<script src="/js/mobile/mobile.js"></script>
+<script src="/js/notice/notice_list.js"></script>
+<link th:if="${localecd == 'en'}" href="/css/style_en.css" rel="stylesheet" type="text/css" />
+<link th:if="${localecd == 'ja'}" href="/css/style_ja.css" rel="stylesheet" type="text/css" />
+<link th:if="${localecd == 'ko'}" href="/css/style.css" rel="stylesheet" type="text/css" />
+
+<link rel="stylesheet" type="text/css" href="/css/explain.css" />
+<link rel="stylesheet" type="text/css" href="/css/tui-grid.min.css" />
+<link rel="stylesheet" type="text/css" href="/css/tui-pagination.css" />
+
+<script type="text/javascript" src="/js/tui-code-snippet.min.js"></script>
+<script type="text/javascript" src="/js/tui-pagination.min.js"></script>
+<script type="text/javascript" src="/js/tui-grid.min.js"></script>
+
+</head>
+
+<body>
+
+	<div class="wrap">	
+		<div th:include="fragment/header::frgHeader" class="header"></div>
+		<div class="contents">
+			<h2 class="subTitle subTitleNotice"><th:block th:text="#{title.notice}"></th:block></h2>
+
+			<div id="grid"></div>
+			<br><br>
+		
+			<!-- <input type="button" id="test_btn" value="수정버튼">
+			<input type="button" id="excel_btn" value="엑셀버튼"> -->
+		</div>
+	</div>
+
+</body>
+
+
+<!-- 
+<script type="text/javascript">
+
+var flag = true;
+
+for(var i=1; i<4; i++) {
+	$("#notice_panel_"+i).hide();
+}
+
+
+$(document).ready(function(){
+   $(".mMenu").click(function() {
+	$(".nav").toggleClass("mNavOn");
+	$(this).toggleClass("mMenuClose");
+   });
+
+   $("#notice_flip_1").click(function(){
+     $("#notice_panel_1").slideToggle("fast");
+   });
+   $("#notice_flip_2").click(function(){
+	     $("#notice_panel_2").slideToggle("fast");
+   });
+   $("#notice_flip_3").click(function(){
+	     $("#notice_panel_3").slideToggle("fast");
+   });
+   $("#notice_flip_4").click(function(){
+	     $("#notice_panel_4").slideToggle("fast");
+   });
+});
+	
+
+</script> -->
+
+</html>

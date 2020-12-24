@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+     PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+     "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="com.vitcon.service.pastrecord.PastRecordMapper">
+
+    <resultMap type="com.vitcon.service.user.UserVO" id="UserVOMap">
+       <result column="userid" property="userid"></result>
+       <result column="username" property="username"></result> 
+       <result column="puserid" property="puserid"></result> 
+    </resultMap>
+    
+    <resultMap type="com.vitcon.service.device.DeviceVO" id="DeviceVOMap">
+       <result column="deviceid" property="deviceid"></result>
+       <result column="devicename" property="devicename"></result>
+       <result column="userid" property="userid"></result>
+       <result column="createdate" property="createdate"></result>
+       <result column="updatedate" property="updatedate"></result>
+       <result column="devicetypecd" property="devicetypecd"></result>
+       <result column="groupid" property="groupid"></result>
+       <result column="devicedesc" property="devicedesc"></result>
+       <result column="deleteflag" property="deleteflag"></result>
+    </resultMap>
+    
+	<resultMap type="com.vitcon.service.device.DeviceGroupVO" id="DeviceGroupVOMap">
+       <result column="groupid" property="groupid"></result>
+       <result column="groupname" property="groupname"></result>
+       <result column="userid" property="userid"></result>       
+       <result column="defaultyn" property="defaultyn"></result>
+	</resultMap>
+
+	<resultMap type="com.vitcon.service.device.DeviceDataVO" id="DeviceDataVOMap">
+       <result column="deviceid" property="deviceid"></result>
+       <result column="regdate" property="regdate"></result>
+       <result column="startdate" property="startdate"></result>
+       <result column="enddate" property="enddate"></result>       
+       <result column="channelid" property="channelid"></result>
+	</resultMap>
+	
+    <resultMap type="com.vitcon.service.device.IntegratedVO" id="getAllAnalyzeList">
+       <collection property="user" resultMap="UserVOMap"></collection>
+       <collection property="device" resultMap="DeviceVOMap"></collection>
+       <collection property="devicegroup" resultMap="DeviceGroupVOMap"></collection>
+       <collection property="devicedata" resultMap="DeviceDataVOMap"></collection>
+    </resultMap>
+    
+	<!-- 날짜별 과거 데이터 조회 기능 -->
+    <select id="getTimeRecodList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+     <![CDATA[
+		SELECT DATE_FORMAT(a.regdate, "%Y-%m-%d") AS regdate
+              ,DATE_FORMAT(a.regdate, "%H:%i") AS regdateTime
+		      ,group_concat(a.channelid SEPARATOR '|') channelid
+		      ,group_concat(a.data SEPARATOR '|') data
+		      ,b.devicename
+		      ,b.devicetypecd
+              ,c.groupname    
+		  FROM devicedata a
+		      ,device b
+		      ,(
+		   SELECT ifnull(puserid, userid) as userid 
+			FROM user
+		   WHERE userid = #{userid}
+		       ) d
+		        ,devicegroup c
+		   WHERE a.regdate > #{startdate} AND a.regdate < #{enddate}
+             AND d.userid = b.userid
+		     AND a.deviceid = #{deviceid}
+		     AND a.deviceid = b.deviceid
+		     AND b.groupid = c.groupid	     
+		  ]]>
+		  <if test = "groupid != null">
+             AND b.groupid = #{groupid}
+		  </if>		     
+		GROUP BY a.regdate
+	 </select>
+	 
+	 <select id="getTimeRecodGridList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+     	<![CDATA[
+		SELECT SQL_CALC_FOUND_ROWS 
+			   DATE_FORMAT(a.regdate, "%Y-%m-%d") AS regdate
+              ,DATE_FORMAT(a.regdate, "%H:%i") AS regdateTime
+		      ,group_concat(a.channelid SEPARATOR '|') channelid
+		      ,group_concat(a.data SEPARATOR '|') data
+		      ,b.devicename
+		      ,b.devicetypecd
+              ,c.groupname    
+		  FROM devicedata a
+		      ,device b
+		      ,(
+		   SELECT ifnull(puserid, userid) as userid 
+			FROM user
+		   WHERE userid = #{userid}
+		       ) d
+		        ,devicegroup c
+		   WHERE a.regdate > #{startdate} AND a.regdate < #{enddate}
+             AND d.userid = b.userid
+		     AND a.deviceid = #{deviceid}
+		     AND a.deviceid = b.deviceid
+		     AND b.groupid = c.groupid	     
+		  ]]>
+		  <if test = "groupid != null">
+             AND b.groupid = #{groupid}
+		  </if>		     
+		GROUP BY a.regdate
+		ORDER BY a.regdate desc
+     	limit #{page}, #{perPage}
+    </select>
+	 
+    <select id="getDashBoardDetailGridlist" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+     <![CDATA[
+		SELECT SQL_CALC_FOUND_ROWS 
+			   DATE_FORMAT(a.regdate, "%Y-%m-%d") AS regdate
+              ,DATE_FORMAT(a.regdate, "%H:%i") AS regdateTime
+		      ,group_concat(a.channelid SEPARATOR '|') channelid
+		      ,group_concat(a.data SEPARATOR '|') data
+		      ,b.devicename
+		      ,b.devicetypecd
+              ,c.groupname    
+		  FROM devicedata a
+		      ,device b
+		      ,(
+		   SELECT ifnull(puserid, userid) as userid 
+			FROM user
+		   WHERE userid = #{userid}
+		       ) d
+		        ,devicegroup c
+		   WHERE a.regdate > #{startdate} AND a.regdate < #{enddate}
+             AND d.userid = b.userid
+		     AND a.deviceid = #{deviceid}
+		     AND a.deviceid = b.deviceid
+		     AND b.groupid = c.groupid	     
+		  ]]>
+		  <if test = "groupid != null">
+             AND b.groupid = #{groupid}
+		  </if>		     
+		GROUP BY a.regdate
+		ORDER BY a.regdate desc
+		limit #{page}, #{perPage}
+	 </select>
+	 
+	 
+	 
+	 
+	 
+	 
+	 <select id="getPastData" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+     	<![CDATA[
+		SELECT  
+			   DATE_FORMAT(a.regdate, "%Y-%m-%d") AS regdate
+              ,DATE_FORMAT(a.regdate, "%H:%i") AS regdateTime
+		      ,group_concat(a.channelid SEPARATOR '|') channelid
+		      ,group_concat(a.data SEPARATOR '|') data
+		      ,b.devicename
+		      ,b.devicetypecd
+              ,c.groupname
+              ,min(a.seqno) as minseqno
+              ,max(a.seqno) as maxseqno    
+		  FROM devicedata a
+		      ,device b
+		      ,(
+		   SELECT ifnull(puserid, userid) as userid 
+			FROM user
+		   WHERE userid = #{userid}
+		       ) d
+		        ,devicegroup c
+		   WHERE a.regdate > #{startdate} AND a.regdate < #{enddate}
+             AND d.userid = b.userid
+		     AND a.deviceid = #{deviceid}
+		     AND a.deviceid = b.deviceid
+		     AND b.groupid = c.groupid	     
+		  ]]>
+		  <if test = "groupid != null">
+             AND b.groupid = #{groupid}
+		  </if>		     
+		GROUP BY a.regdate
+		ORDER BY a.regdate desc
+		LIMIT 0,100
+    </select>
+	 
+	 <!-- 과거데이터 다음  -->
+	<select id="getPastNextData" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+     	<![CDATA[
+		SELECT  
+			   DATE_FORMAT(a.regdate, "%Y-%m-%d") AS regdate
+              ,DATE_FORMAT(a.regdate, "%H:%i") AS regdateTime
+		      ,group_concat(a.channelid SEPARATOR '|') channelid
+		      ,group_concat(a.data SEPARATOR '|') data
+		      ,b.devicename
+		      ,b.devicetypecd
+              ,c.groupname
+              ,min(a.seqno) as minseqno
+              ,max(a.seqno) as maxseqno    
+		  FROM devicedata a
+		      ,device b
+		      ,(
+		   SELECT ifnull(puserid, userid) as userid 
+			FROM user
+		   WHERE userid = #{userid}
+		       ) d
+		        ,devicegroup c
+		   WHERE a.regdate > #{startdate} AND a.regdate < #{enddate}
+             AND d.userid = b.userid
+		     AND a.deviceid = #{deviceid}
+		     AND a.deviceid = b.deviceid
+		     AND b.groupid = c.groupid
+		     AND a.seqno < #{lastSeqno} 
+		  ]]>
+		  <if test = "groupid != null">
+             AND b.groupid = #{groupid}
+		  </if>		     
+		GROUP BY a.regdate
+		ORDER BY a.seqno desc
+		LIMIT 100
+    </select>
+	 
+	 <!-- 과거데이터 이전  -->
+	 <select id="getPastPreData" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+     	<![CDATA[
+		SELECT  
+			   DATE_FORMAT(a.regdate, "%Y-%m-%d") AS regdate
+              ,DATE_FORMAT(a.regdate, "%H:%i") AS regdateTime
+		      ,group_concat(a.channelid SEPARATOR '|') channelid
+		      ,group_concat(a.data SEPARATOR '|') data
+		      ,b.devicename
+		      ,b.devicetypecd
+              ,c.groupname
+              ,min(a.seqno) as minseqno
+              ,max(a.seqno) as maxseqno    
+		  FROM devicedata a
+		      ,device b
+		      ,(
+		   SELECT ifnull(puserid, userid) as userid 
+			FROM user
+		   WHERE userid = #{userid}
+		       ) d
+		        ,devicegroup c
+		   WHERE a.regdate > #{startdate} AND a.regdate < #{enddate}
+             AND d.userid = b.userid
+		     AND a.deviceid = #{deviceid}
+		     AND a.deviceid = b.deviceid
+		     AND b.groupid = c.groupid
+		     AND a.seqno > #{firstSeqno} 
+		  ]]>
+		  <if test = "groupid != null">
+             AND b.groupid = #{groupid}
+		  </if>		     
+		GROUP BY a.regdate
+		ORDER BY a.seqno asc
+		LIMIT <!-- #{prelimit}, -->100
+    </select>
+	 
+	 <!-- 과거데이터 처음으로  -->
+	 <select id="getPastHomeData" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+     	<![CDATA[
+		SELECT  
+			   DATE_FORMAT(a.regdate, "%Y-%m-%d") AS regdate
+              ,DATE_FORMAT(a.regdate, "%H:%i") AS regdateTime
+		      ,group_concat(a.channelid SEPARATOR '|') channelid
+		      ,group_concat(a.data SEPARATOR '|') data
+		      ,b.devicename
+		      ,b.devicetypecd
+              ,c.groupname
+              ,min(a.seqno) as minseqno
+              ,max(a.seqno) as maxseqno    
+		  FROM devicedata a
+		      ,device b
+		      ,(
+		   SELECT ifnull(puserid, userid) as userid 
+			FROM user
+		   WHERE userid = #{userid}
+		       ) d
+		        ,devicegroup c
+		   WHERE a.regdate > #{startdate} AND a.regdate < #{enddate}
+             AND d.userid = b.userid
+		     AND a.deviceid = #{deviceid}
+		     AND a.deviceid = b.deviceid
+		     AND b.groupid = c.groupid
+		     AND a.seqno <= #{homeSeqno} 
+		  ]]>
+		  <if test = "groupid != null">
+             AND b.groupid = #{groupid}
+		  </if>		     
+		GROUP BY a.regdate
+		ORDER BY a.seqno desc
+		LIMIT 100
+    </select>
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+</mapper>

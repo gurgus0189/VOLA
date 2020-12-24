@@ -1,0 +1,64 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width" />
+<title>VITCON - THE HUB OF CONTROLLER</title>
+<script src="/js/jquery-2.1.4.min.js"></script>
+<script src="/js/jquery-ui-1.11.4.min.js"></script>
+<script src="/js/namespace.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/jquery.cookie.js"></script>
+<script src="/js/jquery.i18n.properties.js"></script>
+<script src="/js/language/language.js"></script>
+<script src="/js/mobile/mobile.js"></script>
+<script src="/js/control/control_record.js"></script>
+<!-- <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/material_blue.css"> -->
+<link th:if="${localecd == 'en'}" href="/css/style_en.css" rel="stylesheet" type="text/css" />
+<link th:if="${localecd == 'ja'}" href="/css/style_ja.css" rel="stylesheet" type="text/css" />
+<link th:if="${localecd == 'ko'}" href="/css/style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body class="alarm record_list">
+<div class="wrap">
+    <div th:include="fragment/header::frgHeader" class="header"></div>
+    <div class="contents">
+        <h2 class="subTitle subTitleControl"><th:block th:text="#{title.control.history}"></th:block></h2>
+        <div class="searchTop searchTopAlarm">
+            <ul class="searchTopList">
+                <li>
+                    <label for=""><th:block th:text="#{control.search.date}"></th:block></label>
+                    <span class="searchBox01" id="date"><em></em><i></i></span>
+                </li>
+                <li>
+                    <label for="selBox01"><th:block th:text="#{common.search.group}"></th:block></label>
+                    <span class="selBox02">
+                        <select name="deviceGroupList" id="deviceGroupList">
+                        </select>
+                    </span>
+                </li>
+                <li>
+                    <label for="selBox02"><th:block th:text="#{common.search.type}"></th:block></label>
+                    <span class="selBox02">
+                        <select name="deviceTypeList" id="deviceTypeList">
+                        </select>
+                    </span>
+                </li>
+                <li><a class="btnSearchTop" id="btnSearchTop" th:attr="title=#{common.searching}"><i></i><span><th:block th:text="#{common.search}"></th:block></span></a></li>
+            </ul>
+        </div>
+        <div class="listTable listTableAlarm" id="listTableAlarm" style="display:none">
+            <ul class="listTableHead">
+                <li><th:block th:text="#{common.list.date}"></th:block></li>
+                <li><th:block th:text="#{common.deviceid}"></th:block></li>
+                <li><th:block th:text="#{control.search.result}"></th:block></li>
+            </ul>
+        </div>
+        <div id="noData" class="listNoResult"><th:block th:text="#{common.noresult}"></th:block></div>
+    </div>
+</div>
+
+</body>
+</html>

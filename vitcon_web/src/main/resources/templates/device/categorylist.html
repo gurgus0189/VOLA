@@ -1,0 +1,98 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width" />
+<title>VITCON - THE HUB OF CONTROLLER</title>
+<script src="/js/jquery-2.1.4.min.js"></script>
+<script src="/js/jquery-ui-1.11.4.min.js"></script>
+<script src="/js/namespace.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/jquery.cookie.js"></script>
+<script src="/js/jquery.i18n.properties.js"></script>
+<script src="/js/language/language.js"></script>
+<script src="/js/mobile/mobile.js"></script>
+<link th:if="${localecd == 'en'}" href="/css/style_en.css" rel="stylesheet" type="text/css" />
+<link th:if="${localecd == 'ja'}" href="/css/style_ja.css" rel="stylesheet" type="text/css" />
+<link th:if="${localecd == 'ko'}" href="/css/style.css" rel="stylesheet" type="text/css" />
+
+<script>
+function makeDeviceTypeHtml(obj){
+	var devicetypecd = obj.devicetypecd;
+	var devicetypename = obj.devicetypename;
+	var devicetypenameble = obj.devicetypenameble;
+	var deviceiconid = obj.deviceiconid;
+	var deviceiconpath = obj.deviceiconpath;
+	var url = "/device/manual.do?devicetypecd=" + devicetypecd + "&devicetypename=" + devicetypenameble;
+	var html = "";
+	html += "\n<li class=\"DeviceT10\"><a href=\"" + url + "\"><i></i><span>" + devicetypename + "</span></a></li>";  
+	// <a 태그에 디바이스 타입을 붙여 링크를 넘길수 있도록 처리한다.>
+	return html;
+}
+
+function makeDeviceType(categoryid,obj) {
+	var html = makeDeviceTypeHtml(obj);
+	var categoryid = "#appDeviceUl_" +categoryid;
+	$(categoryid).append(html);
+}
+
+function makeCategoryHtml(categoryid,categoryname) {
+	var html = "";
+	html +="<h3 class=\"appDeviceCate\" id=\"appDeviceCate_"+ categoryid +"\" >" + categoryname + "</h3>";
+	html += "\n<ul class=\"appDeviceUl\" id=\"appDeviceUl_" + categoryid + "\">";
+	html += "\n</ul>";
+	return html;
+}
+
+function makeCategory(categoryid,categoryname) {
+	var idcategory = "#appDeviceCate_" + categoryid;
+	if($(idcategory).length > 0) {
+		// 카테고리 존재
+		return ;
+	}
+	var html = makeCategoryHtml(categoryid,categoryname);
+	$(".appDeviceList").append(html);
+}
+
+function makeDeviceCategory() {
+
+	$.ajax({
+		type:"GET",
+		url:"/openapi/device/manual/categorylist",
+		dataType:"JSON", // 옵션이므로 JSON으로 받을게 아니면 안써도 됨
+		success : function(data) {
+			var obj = data.data;
+    		var returnCode = data.returnCode;
+
+			for (var i = 0; i <obj.length; i++) {
+				var categoryid = obj[i].categorycd;
+				var categoryname = obj[i].categoryname;
+			    makeCategory(categoryid,categoryname);
+			    makeDeviceType(categoryid,obj[i]); 
+			}
+			
+		},
+        error : function(xhr, status, error) {
+        	//console.log("error");
+			var errorComment = $.i18n.prop('common.error');
+    		alert(errorComment);
+        }
+	});
+}
+$(function(){	
+	makeDeviceCategory();
+})
+</script>
+
+</head>
+
+<body class="app app_regi01">
+<div class="wrapApp">
+    <div class="appTop"><a href="/dashboard/listview.do">back</a><h2><th:block th:text="#{title.device.regist}"></th:block></h2></div>
+    <div class="appTopInfo"><th:block th:text="#{device.regist.tip}"></th:block></div>
+    <div class="appDeviceList">
+    </div>
+</div>
+
+</body>
+</html>

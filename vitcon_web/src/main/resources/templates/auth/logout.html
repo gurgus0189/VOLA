@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script src="/js/jquery-2.1.4.min.js"></script>
+<script th:inline="javascript">
+/* <![CDATA[ */
+logout(); // 로그인 화면으로 이동
+
+function logout() {
+	var localecd = /*[[ ${localecd} ]]*/;
+
+	$.ajax({
+		type : "get",
+		url : "/openapi/auth/logout",
+		success : function() {
+			location.href = "/auth/login.do"
+		}
+	});
+} 
+/* ]]> */
+</script>
+</head>
+</html>

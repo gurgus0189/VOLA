@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width" />
+<title>VITCON - THE HUB OF CONTROLLER</title>
+
+<script src="/js/jquery-2.1.4.min.js"></script>
+<script src="/js/jquery-ui-1.11.4.min.js"></script>
+<script src="/js/namespace.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/jquery.i18n.properties.js"></script>
+<script src="/js/jquery.cookie.js"></script>
+<script src="/js/language/language.js"></script>
+<script src="/js/mobile/mobile.js"></script>
+<script src="/js/notice/notice_list_detail.js"></script>
+<link th:if="${localecd == 'en'}" href="/css/style_en.css" rel="stylesheet" type="text/css" />
+<link th:if="${localecd == 'ja'}" href="/css/style_ja.css" rel="stylesheet" type="text/css" />
+<link th:if="${localecd == 'ko'}" href="/css/style.css" rel="stylesheet" type="text/css" />
+
+
+</head>
+
+<body>
+	<div class="wrap">
+		<div th:include="fragment/header::frgHeader" class="header"></div>
+		<div class="contents">
+			<h2 class="subTitle subTitleNotice"><th:block th:text="#{title.notice}"></th:block></h2>
+			
+			<div class="notice_header_table">
+				<div class="notice_header_noticecontent"><th:block th:text="#{title.notice}"></th:block></div>
+			</div>
+			<div class="notice_body_table">
+				<div class="notice_body_noticecontent"></div>
+				<div class="notice_label notice_list_btn" id="list_btn"><th:block th:text="#{title.notice.back}"></div>
+			</div>
+	
+			<!-- <br><br><br>
+			<div id="grid"> -->
+			
+		</div>
+		<br>
+	</div>
+
+</body>
+
+
+
+</html>

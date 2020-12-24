@@ -1,0 +1,126 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width" />
+<title>VITCON - THE HUB OF CONTROLLER</title>
+<script src="/js/jquery-2.1.4.min.js"></script>
+<script src="/js/jquery-ui-1.11.4.min.js"></script>
+<script src="/js/namespace.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/jquery.i18n.properties.js"></script>
+<script src="/js/jquery.cookie.js"></script>
+<script src="/js/language/language.js"></script>
+<script src="/js/mobile/mobile.js"></script>
+<script src="/js/mypage/setup.js"></script>
+<link th:if="${localecd == 'en'}" href="/css/style_en.css" rel="stylesheet" type="text/css" />
+<link th:if="${localecd == 'ja'}" href="/css/style_ja.css" rel="stylesheet" type="text/css" />
+<link th:if="${localecd == 'ko'}" href="/css/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body class="mypage mypage_setup">
+<div class="wrap">
+	<div th:include="fragment/header::frgHeader" class="header"></div>
+   
+   <div class="popupLayer popupMemberSecession" style="" id="popupMemberSecession">
+	   	<div class="popupInner">
+	       <div class="popupHead">
+	           <h2><th:block th:text="#{account.member.secession}"></th:block></h2>
+	           <a style="cursor:pointer" class="btnClosePop ui-link" onclick="closePopupLayer()" rel="external"></a>
+	       </div>
+	       <div class="popupMemberSecessionBody">
+	           <div id="channelrange" class="popupMember">
+	               <h3><th:block th:text="#{account.member.secession.title}"></th:block><br>
+	               <h4><th:block th:text="#{account.member.secession.subtitle}"></th:block></h4>
+	               <div class="popupContainer">
+	              	    
+                     <input type="text" class="popMemberTxtbox" id="input_certificationNumber" th:placeholder="#{account.member.secession.issuance}" value="" disabled>
+	                      
+	                 <div class="btnMemberPopCenter"><a style="cursor:pointer" class="btnMemberPopNormal" onclick="certificationNumber()"><th:block th:text="#{account.member.secession.security}"></th:block></a></div>
+		                   
+                     <input type="text" class="popMember2Txtbox" id="input_popMember2Txtbox" th:placeholder="#{account.member.secession.input}">    
+		                   
+	               </div>
+	   			
+	           </div>
+	           <div class="btnPopCenter">
+	           		<a style="cursor:pointer" class="btnPopNormal" onclick="closePopupLayer()"><th:block th:text="#{common.cancel}"></th:block><i></i></a>
+	           		<a style="cursor:pointer" class="btnPopConfirm" onclick="applyPopupLayer()"><th:block th:text="#{account.member.secession}"></th:block><i></i></a>
+	           </div>
+	        </div>
+	    </div>
+	</div>
+      
+       <div class="popupBgLayer" id="popupBgLayer" style=""></div>
+   
+    <div class="contents">
+        <h2 class="subTitle subTitleSetup"><th:block th:text="#{account.title.setting}"></th:block></h2>
+        <div class="subTitleSmall"><h3><th:block th:text="#{account.alarm.setting}"></th:block></h3></div>
+        <div class="setupCont">
+        	
+        	<div class="setupAlarmContainer">
+	            <p class="setupAlarmTxt"><th:block th:text="#{account.alarm.content}"></th:block></p>
+	            <p class="setupAlarmChk"><input type="checkbox" id="listChk1" name="listChkbox">
+	            <label for="listChk1" class="listChk"></label>
+	            <span class="sensorNameTxt"><th:block th:text="#{account.alarm.receive}"></th:block></span></p>
+            </div>
+            <div class="setupAlarmContainer">
+	            <p class="setupAlarmTxt"><th:block th:text="#{account.sysalarm.content}"></th:block></p>
+	            <p class="setupAlarmChk"><input type="checkbox" id="listChk2" name="listChkbox">
+	            <label for="listChk2" class="listChk"></label>
+	            <span class="sensorNameTxt"><th:block th:text="#{account.sysalarm.receive}"></th:block></span></p>
+	            <span class="selBox03_push_lang">                              
+                 <select name="languageSel" id="languageSel_push">
+                    <option th:value="ko">한국어</option>
+                    <option th:value="en">English</option>
+                    <option th:value="ja">日本語</option>
+                </select>
+            </span>
+            </div>
+            
+        </div>
+        <div class="btnDivLeftBottom"><a class="btnCheck" id="btnAlarmCheck"><i></i><th:block th:text="#{common.apply}"></th:block></a></div>
+        <div class="subTitleSmall"><h3><th:block th:text="#{account.passwd.change}"></th:block></h3></div>
+        <div class="setupCont">
+             <ul class="pwChgUl">
+                 <li>
+                     <label for="inputPw"><th:block th:text="#{account.oldpasswd}"></th:block></label>
+                     <input type="password" class="pwChangeTbox" id="inputPw" th:attr="placeholder=#{account.oldpasswd}" placeholder="기존 비밀번호" onkeyup="enterkey()">
+                 </li>
+                 <li>
+                     <label for="inputNewPw"><th:block th:text="#{account.newpasswd}"></th:block></label>
+                     <input type="password" class="pwChangeTbox" id="inputNewPw" th:attr="placeholder=#{account.newpasswd}" placeholder="새 비밀번호" onkeyup="enterkey()">
+                 </li>
+                 <li>
+                     <label for="inputCnfPw"><th:block th:text="#{account.newpasswd.confirm}"></th:block></label>
+                     <input type="password" class="pwChangeTbox" id="inputCnfPw" th:attr="placeholder=#{account.newpasswd.confirm}" placeholder="새 비밀번호 확인" onkeyup="enterkey()">
+                 </li>
+             </ul>
+             <p class="setupAlarmTxt" id="setupAlarmTxt" style="display: none;"><th:block th:text="#{account.passwd.updatetip}"></th:block></p>             
+        </div>
+        <div class="btnDivLeftBottom"><a class="btnCheck" id="btnPwCheck"><i></i><th:block th:text="#{common.apply}"></th:block></a></div>
+    
+    	<div th:style="!${mAddShow} ? 'display:none'" class="subTitleSmall" id="memberSecession"><h3><th:block th:text="#{account.member.secession}"></th:block></h3></div>
+        <div th:style="!${mAddShow} ? 'display:none'" class="setupCont">
+             <ul class="pwChgUl" >
+                 <li>  <!-- th:text="${session.userid}" -->
+                     <label for="inputPw"><th:block th:text="#{account.member.secession.id}"></th:block></label>
+                     <input type="text" class="pwChangeTbox" id="memberSecessionId" style="background: #5D5D5D;" th:value="${session.userid}" readonly>
+                 </li>
+             </ul>
+        </div>
+        <div  th:style="!${mAddShow} ? 'display:none'" class="btnDivLeftBottom"><a class="btnCheck" id="memberSecessionCheck"><i></i><th:block th:text="#{account.member.secession}"></th:block></a></div>
+    
+    </div>
+</div>
+<input type="hidden" name="userid" id="userid" th:value="${session.userid}"/>
+<script type="text/javascript">
+//moobile menu
+$(document).ready(function() {
+    $(".mMenu").click(function(){
+        $(".nav").toggleClass("mNavOn");
+        $(this).toggleClass("mMenuClose");
+    });
+});
+</script>
+</body>
+</html>

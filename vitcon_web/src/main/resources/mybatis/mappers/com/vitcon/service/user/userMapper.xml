@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+     PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+     "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="com.vitcon.service.user.UserMapper">
+
+	<resultMap type="com.vitcon.service.user.UserVO" id="UserVOMap">
+		<result column="userid" property="userid"/>		
+		<result column="username" property="username"/>
+		<result column="passwd" property="passwd"/>
+		<result column="grade" property="grade"/>
+		<result column="puserid" property="puserid"/>
+		<result column="startdate" property="startdate"/>
+		<result column="enddate" property="enddate"/>				
+		<result column="mobile" property="mobile"/>
+		<result column="pushyn" property="pushyn"/>	
+		<result column="localecd" property="localecd"/>	
+	</resultMap>
+	
+	<!-- 계정 찾기(조회) -->
+	<select id="getUserID" resultMap="UserVOMap">
+		SELECT *
+  		  FROM user a
+ 		 WHERE a.username = #{username}
+   		   AND a.mobile = #{mobile}
+	</select>
+
+	<!-- 계정 수정 -->
+	<update id="modifyUserAccount" parameterType="com.vitcon.service.user.UserVO">
+		UPDATE user SET username = #{username},
+	                    passwd = #{passwd},
+	                    grade = #{grade},
+	                    startdate = #{startdate},
+	                    enddate = #{enddate},
+	                    mobile = #{mobile},
+	                    pushyn = #{pushyn},
+	                    localecd = #{localecd}
+	 	          WHERE userid = #{userid}
+	 </update>
+
+</mapper>

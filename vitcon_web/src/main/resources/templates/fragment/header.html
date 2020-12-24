@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>header</title>
+</head>
+<body>
+
+<div th:fragment="frgHeader">
+
+        <h1 class="logo"><a href="/dashboard/listview.do?menu_listview=1">VITCON</a></h1>
+        <div class="mAdd" th:if="${mAddShow}" id='mAddDevice'>        	
+			<a href="/device/categorylist.do">디바이스등록</a>        	
+        </div>
+        <div class="mMenu"><a>모바일메뉴</a></div>
+        <div class="nav" role="navigation">
+            <ul class="navList">
+            	<li th:class="${param.menu_listview2}? 'navOn'"><a href="/notice/notice_list.do?menu_listview2=1"><th:block th:text="#{title.notice}"></th:text>공지사항</a></li>
+                <li th:class="${param.menu_listview}? 'navOn'"><a href="/dashboard/listview.do?menu_listview=1"><th:block th:text="#{title.dash}"></th:text>대시보드</a></li>
+                <li th:class="${param.menu_cont}? 'navOn'"><a href="/alarm/alarm_list.do?menu_cont=1"><th:block th:text="#{title.alarm}"></th:text>알람내역조회</a>
+                    <!-- <ul class="sNavList">
+                    	<li th:class="${param.menu_cont}? 'navOn'"><a href="/alarm/alarm_list.do?menu_cont=1"><th:block th:text="#{title.alarm}"></th:text>알람내역조회</a></li>
+                        <li th:class="${param.menu_cont}? 'navOn'"><a href="/control/control_record.do?menu_cont=1"><th:block th:text="#{title.control.history}"></th:text>제어이력조회</a></li>
+                    </ul> -->
+                </li>
+                <!-- 나의디바이스는 구매자만 볼수 있음 -->
+                <li th:style="!${mAddShow} ? 'display:none'" th:class="${param.menu_device}? 'navOn'"><a href="/device/device_list.do?menu_device=1"><th:block th:text="#{title.device}"></th:text>나의 디바이스</a>
+                    <ul class="sNavList">
+                        <li><a href="/device/device_list.do?menu_device=1"><th:block th:text="#{title.device.devicemanage}"></th:text>디바이스 관리</a></li>
+                        <li><a href="/device/device_group.do?menu_device=1"><th:block th:text="#{title.device.groupmanage}"></th:text>그룹 관리</a></li>
+                    </ul>
+                </li>
+                <li th:class="${param.menu_past}? 'navOn'"><a href="/past/past_list.do?menu_past=1"><th:block th:text="#{title.past}"></th:text>과거데이터조회</a></li>
+                <!-- <li th:class="${param.menu_stats}? 'navOn'"><a href="/stats/stats_list.do?menu_stats=1"><th:block th:text="#{title.statis}"></th:text>통계</a>
+                    <ul class="sNavList">
+                        <li><a href="/stats/stats_list.do?menu_stats=1"><th:block th:text="#{title.statis}"></th:text>통계</a></li>
+                        <li><a href="/stats/stats_analysis.do?menu_stats=1"><th:block th:text="#{title.statis.analyze}"></th:text>문제상황분석</a></li>
+                    </ul>
+                </li> -->
+                
+                <li th:class="${param.menu_stats}? 'navOn'"><a href="/stats/stats_list2.do?menu_stats=1"><th:block th:text="#{title.statis}"></th:text>통계</a>
+                    <!-- <ul class="sNavList">
+                        <li><a href="/stats/stats_list.do2?menu_stats=1"><th:block th:text="#{title.statis}"></th:text>통계</a></li>
+                        <li><a href="/stats/stats_analysis.do?menu_stats=1"><th:block th:text="#{title.statis.analyze}"></th:text>문제상황분석</a></li>
+                    </ul> -->
+                </li>
+                
+                <li th:class="${param.menu_guide}? 'navOn'">
+                	<a href="https://drive.google.com/drive/folders/1J0q_AMa4Yt0ovGAA5mQ-IBFYA3u40uZQ" target="_blank"><th:block th:text="#{title.guide}"></th:text>사용 설명서</a>
+                </li>
+                <li th:switch="${session.grade}" th:class="${param.menu_user}? 'navOn'">
+                	<a th:case="0" href="/mypage/user.do?menu_user=1"><th:block th:text="#{title.mypage}"></th:text>마이페이지</a>
+                	<a th:case="10" href="/mypage/user.do?menu_user=1"><th:block th:text="#{title.mypage}"></th:text>마이페이지</a>
+                	<a th:case="11" href="/mypage/user.do?menu_user=1"><th:block th:text="#{title.mypage}"></th:text>마이페이지</a>
+                	<a th:case="12" href="/mypage/user.do?menu_user=1"><th:block th:text="#{title.mypage}"></th:text>마이페이지</a>
+                	<a th:case="20" href="/mypage/setup.do?menu_user=1"><th:block th:text="#{title.mypage}"></th:text>마이페이지</a>
+                	<a th:case="21" href="/mypage/setup.do?menu_user=1"><th:block th:text="#{title.mypage}"></th:text>마이페이지</a>
+                    <ul class="sNavList">                     	                        
+                    	<!-- 마이페이지 > 계정관리는 구매자만 볼수 있음 -->
+                        <!-- <li th:style="!${mAddShow} ? 'display:none'"><a href="/mypage/myApp.do?menu_user2=1"><th:block th:text="#{title.mypage.account}"></th:text>dddd</a></li> -->
+                       
+                        <li th:style="!${mAddShow} ? 'display:none'"><a href="/mypage/user.do?menu_user=1"><th:block th:text="#{title.mypage.account}"></th:text>계정관리</a></li>
+                        <li><a href="/mypage/setup.do?menu_user=1"><th:block th:text="#{title.mypage.webconfig}"></th:text>환경설정</a></li>
+                        <li><a href="/auth/logout.do"><th:block th:text="#{title.mypage.logout}"></th:text>로그아웃</a></li>
+                        <li class="idViewTxt" th:switch="${session.grade}"><i></i><span th:text="${session.userid}"></span>
+                        		<em th:case="0"><th:block th:text="#{common.superuser}"></th:block></em>
+                        		<em th:case="10" ><th:block th:text="#{common.buyer}"></th:block>(basic)</em>
+	                        	<em th:case="11" ><th:block th:text="#{common.buyer}"></th:block>(special)</em>
+	                        	<em th:case="12" ><th:block th:text="#{common.buyer}"></th:block>(premium)</em>
+	                        	<em th:case="20" ><th:block th:text="#{common.middlemanager}"></th:block></em>
+	                        	<em th:case="21" ><th:block th:text="#{common.user}"></th:block></em>
+                        </li>                           
+                        <!-- <li><span><th:block th:text="#{title.mypage.servicedate}"></th:text>서비스기한</span><em th:text="${#dates.format(session.enddate, 'yyyy-MM-dd')}"></em></li> -->
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div> 
+</body>
+</html>

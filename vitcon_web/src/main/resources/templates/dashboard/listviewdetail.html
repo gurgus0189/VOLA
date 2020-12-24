@@ -1,0 +1,113 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width" />
+<title>VITCON - THE HUB OF CONTROLLER</title>
+<link href="/jqGrid/css/ui.jqgrid.css" rel="stylesheet" type="text/css" />
+<script src="/js/jquery-2.1.4.min.js"></script>
+<script src="/js/jquery-ui-1.11.4.min.js"></script>
+<script src="/js/namespace.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/jquery.i18n.properties.js"></script>
+<script src="/js/jquery.cookie.js"></script>
+<script src="/js/language/language.js"></script>
+<script src="/js/mobile/mobile.js"></script>
+<!-- <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script> -->
+<script src="/js/dashboard/listviewdetail.js"></script>
+<script th:if="${localecd == 'ko'}" src="/jqGrid/js/i18n/grid.locale-kr.js" type="text/javascript"></script>
+<script th:if="${localecd == 'en'}" src="/jqGrid/js/i18n/grid.locale-en.js" type="text/javascript"></script>
+<script th:if="${localecd == 'ja'}" src="/jqGrid/js/i18n/grid.locale-ja.js" type="text/javascript"></script>
+<link th:if="${localecd == 'en'}" href="/css/style_en.css" rel="stylesheet" type="text/css" />
+<link th:if="${localecd == 'ja'}" href="/css/style_ja.css" rel="stylesheet" type="text/css" />
+<link th:if="${localecd == 'ko'}" href="/css/style.css" rel="stylesheet" type="text/css" />
+<script src="/jqGrid/js/jquery.jqGrid.src.js" type="text/javascript"></script> 
+<script type="text/javascript" src="/js/tui-code-snippet.min.js"></script>
+<script type="text/javascript" src="/js/tui-pagination.min.js"></script>
+<script type="text/javascript" src="/js/tui-grid.min.js"></script>
+<link rel="stylesheet" type="text/css" href="/css/explain.css" />
+<link rel="stylesheet" type="text/css" href="/css/tui-grid.min.css" />
+<link rel="stylesheet" type="text/css" href="/css/tui-pagination.css" />
+
+<script type="text/javascript" src="/js/highstock.js"></script>
+<script type="text/javascript" src="/js/exporting.js"></script>
+<script type="text/javascript" src="/js/export-data.js"></script>
+<script type="text/javascript" src="/js/moment.min.js"></script>
+<script type="text/javascript" src="/js/moment-timezone-with-data.js"></script>
+<script type="text/javascript" src="/js/dark-unica.js"></script>
+
+</head>
+
+<body class="dashboard_detail">
+<div class="wrap">
+	<input type="hidden" id="deviceid" th:value="${deviceid}" >
+	<input type="hidden" id="devicename" th:value="${devicename}" >
+	<input type="hidden" id="groupname" th:value="${groupname}" >
+	<input type="hidden" id="devicetypecd" th:value="${devicetypecd}" >
+	<input type="hidden" id="iconpath" th:value="${iconpath}" >
+	<div th:include="fragment/header::frgHeader" class="header"></div>
+    <div class="contents">
+<!-- 
+        <div class="searchTop">
+            <ul class="searchTopList">
+                <li>
+                    <label for=""><th:block th:text="#{common.search.daterange}"></th:block></label>
+                    <span class="searchBox01" id="date"><em></em><i></i></span>
+                </li>
+            <li><a class="btnSearchTop" id="btnSearchTop" th:attr="title=#{common.searching}"><i></i><span><th:block th:text="#{common.search}"></th:block></span></a></li>
+            </ul>
+        </div>
+ -->
+        <div class="dashDetailTitle" id="dashDetailTitle">
+            <!-- <h2 class="dashDetailHead"><i class="icoTemperature">온도</i><span>1층</span><em>101호</em></h2> -->
+            <div class="dashDetailHeadR" id="dashDetailHeadR">
+                <!-- <time class="dashTime">2018-07-19 17:04</time> -->
+           <!-- <span  class="icoWifi icoWifi03" title="아주좋음">아주좋음</span> -->
+            <!--<span class="icoWifi icoWifi02" title="보통">보통</span>
+                <span class="icoWifi icoWifi01" title="약함">약함</span>
+                <span class="icoWifi icoWifi00" title="끊김">끊김</span>
+                <a class="btnDetailSet" title="설정">설정</a>-->
+            </div>
+        </div>
+        <div class="dashDetailView">
+            <ul class="dashDetailList" id="dashDetailList">
+            </ul>
+        </div>
+        
+        <div class="loading-container2" id="loading-container">
+   	 		<div class="loading2"></div>
+   			<div id="loading-text2">LOADING</div>
+    	</div>
+        
+        <div id="tabs" class="tabDashDiv">
+            <ul class="tabDash">
+                <li><a href="#tabs-1"><th:block th:text="#{common.graph}"></th:block></a></li>
+                <li><a href="#tabs-2"><th:block th:text="#{common.list}"></th:block></a></li>
+            </ul>
+            <div id="tabs-1" class="dashDetailCont">
+            	<div style="text-align:center; font-size:16px;"><th:block th:text="#{listview.recently.past}"></th:block></div>
+            	
+            	<div class="listNoResult_container" id="noData1">
+		        	<div class="listNoResult"></div>
+		        	<div class="noData_text"><th:block th:text="#{common.noresult}" style="display:none"></th:block></div>
+		        </div>
+            	
+            </div>
+            <!-- 그리드 영역  -->
+            <div id="tabs-2" class="dashDetailCont">
+            	<div id="grid"></div>
+            	<!-- <table id="gridTable"></table>
+            	<div id="pager"></div> -->                
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--preloader start-->
+<div class="preloaderDiv" style="display:none">
+    <div id="preloader"></div>
+    <h1>Loading..</h1>
+</div>
+<!--preloader end-->
+</body>
+</html>

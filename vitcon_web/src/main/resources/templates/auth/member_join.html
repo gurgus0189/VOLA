@@ -1,0 +1,79 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width" />
+<title>VITCON - THE HUB OF CONTROLLER</title>
+<script src="/js/jquery-2.1.4.min.js"></script>
+<script src="/js/jquery-ui-1.11.4.min.js"></script>
+<script src="/js/namespace.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/jquery.i18n.properties.js"></script>
+<script src="/js/jquery.cookie.js"></script>
+<script src="/js/language/language.js"></script>
+<script src="/js/mobile/mobile.js"></script>
+<script src="/js/auth/member_join.js"></script>
+<link th:if="${localecd == 'en'}" href="/css/style_en.css" rel="stylesheet" type="text/css" />
+<link th:if="${localecd == 'ja'}" href="/css/style_ja.css" rel="stylesheet" type="text/css" />
+<link th:if="${localecd == 'ko'}" href="/css/login.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body class="member member_join_agree">
+<div class="wrap">
+	<!-- 회원가입 처리 폼  -->
+	<form method="post" action="/auth/member_add.do" name="portalform">
+	    <input type="hidden" name="portalid" th:value="${param.portalid}">
+		<input type="hidden" name="registrationtype" th:value="${param.registrationtype}">
+		<input type="hidden" name="email" th:value="${param.email}">
+		<input type="hidden" name="name" th:value="${param.name}">
+		<input type="hidden" name="agreeYN" id="agreeYN">
+	</form>
+    <div class="joinField">
+       <h2 class="memberTitle"><i></i><span><th:block th:text="#{login.join}"></th:block></span></h2>
+        <div class="loginInputBox">
+            <div class="joinAgree">
+                <h3 th:text="#{signup.service.term}"></h3>
+                <h4 th:text="#{signup.service.term.detail}"></h4>                
+                
+                <div class="loginInputSave agreeChk"><input type="checkbox" id="joinAgreeChk0" class="joinAgreeChkBox_all"><label for="joinAgreeChk0"><i></i><th:block th:text="#{common.agreeAll}"></th:block></label></div>
+                
+                <div class="joinAgreeCon">
+                    <p id="firstMsg"></p>
+                </div>
+                <div class="loginInputSave agreeChk"><input type="checkbox" id="joinAgreeChk1" class="joinAgreeChkBox"><label for="joinAgreeChk1"><i></i><th:block th:text="#{common.agree}"></th:block></label></div>
+            </div>
+            <div class="joinAgree">
+                <!-- <h3 th:text="#{signup.private.info.term}"></h3> -->
+                <div class="joinAgreeCon">
+                    <p id="secondMsg"></p>
+                </div>
+                <div class="loginInputSave agreeChk"><input type="checkbox" id="joinAgreeChk2" class="joinAgreeChkBox"><label for="joinAgreeChk2"><i></i><th:block th:text="#{common.agree}"></th:block></label></div>
+            </div>
+            
+            <div class="joinAgree_ko">
+                <!-- <h3 th:text="#{signup.private.info.term}"></h3> -->
+                <div class="joinAgreeCon_ko">
+                    <p id="thirdMsg"></p>
+                </div>
+                <div class="loginInputSave agreeChk"><input type="checkbox" id="joinAgreeChk3" class="joinAgreeChkBox"><label for="joinAgreeChk3"><i></i><th:block th:text="#{common.agree}"></th:block></label></div>
+            </div>
+            
+            <div class="btnJoinCenter">
+                <a class="btnPopNormal" id="btnPopNormal"><th:block th:text="#{common.cancel}"></th:block><i></i></a>
+                <a class="btnPopConfirm btnPopDisable" id="next"><th:block th:text="#{signup.write.inform}"></th:block><i></i></a>
+            </div>
+            <!--메세지 start-->
+            <div class="loginWrong" style="display:none"><span><th:block th:text="#{signup.private.info.agree}"></th:block></span></div>
+            <!--메세지 end-->
+        </div>
+        <div class="memberShip">
+            <ul class="memberList">
+                <li><a id="loginLink" name="loginLink"><th:block th:text="#{login.link}"></th:block></a></li>
+                <li><a id="findIdLink" name="findIdLink"><th:block th:text="#{login.findid}"></th:block></a></li>
+                <li><a id="findPasswordLink" name="findPasswordLink"><th:block th:text="#{login.findpasswd}"></th:block></a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+</body>
+</html>
